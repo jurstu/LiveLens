@@ -24,16 +24,16 @@ class WorldStore:
             self.versionMinor = self.world["version"]["minor"]
 
             self.objects = self.world["objects"]
-            self.objectList = [0] * len(self.objects)
+            self.pointList = []
             for i, object in enumerate(self.objects):
                 objType = object["type"]
                 objName = object["name"]
                 if(objType == "point"):
                     position = object["position"]
-                    self.objectList[i] = ThreeDeePoint(position[0], 
+                    self.pointList.append(ThreeDeePoint(position[0], 
                                                     position[1], 
                                                     position[2], 
-                                                    objName)
+                                                    objName))
         except Exception as e:
             logger.error("Could not load the whole world")
             logger.exception(e)
@@ -41,7 +41,9 @@ class WorldStore:
         
         logger.debug("Loaded world objects")
 
-            
+    def _outputListOfPoints(self):
+        for p in self.pointList:
+            logger.info(p)
         
 
 
@@ -50,3 +52,4 @@ class WorldStore:
 if __name__ == "__main__":
     ws = WorldStore()
     ws.load()
+    ws._outputListOfPoints()

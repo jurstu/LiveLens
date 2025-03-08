@@ -8,27 +8,42 @@
         {
             "name": "pointA",
             "type": "point",
-            "position": [0, 0, 0]
+            "position": [1, 0, 0]
         },
         {
             "name": "pointB", 
             "type": "point",
-            "position": [1, 0, 0]
+            "position": [1.1, 0, 0]
         },
         {
-            "name": "pointC",
+            "name": "pointC", 
             "type": "point",
-            "position": [0, 1, 0]
+            "position": [1.1, 0.1, 0]
         },
         {
-            "name": "pointD",
+            "name": "pointD", 
             "type": "point",
-            "positions": [1, 1, 0]
+            "position": [1, 0.1, 0]
         },
         {
-            "name": "pointE",
+            "name": "pointE", 
             "type": "point",
-            "position": [0, 0, 1]
+            "position": [1, 0, 0.1]
+        },
+        {
+            "name": "pointF", 
+            "type": "point",
+            "position": [1.1, 0, 0.1]
+        },
+        {
+            "name": "pointG", 
+            "type": "point",
+            "position": [1.1, 0.1, 0.1]
+        },
+        {
+            "name": "pointH", 
+            "type": "point",
+            "position": [1, 0.1, 0.1]
         }
     ]
 }

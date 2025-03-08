@@ -10,6 +10,8 @@ class ThreeDeePoint:
         self.z = z
         self.name = name
 
+    def __repr__(self):
+        return f"x:{self.x}, y:{self.y}, z:{self.z}"
 
 class ThreeDeePointWgs84:
     def __init__(self, lat: float, lon: float, height: float, name: str = ""):
