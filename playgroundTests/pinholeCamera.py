@@ -23,6 +23,8 @@ class PinholeCamera:
         #validMask = zCam > 0
         #cameraCoords = cameraCoords[:, validMask]
 
+        # TODO add calculating if v, u are in the camera frame
+
         if cameraCoords.shape[1] == 0:
             return np.empty((0, 2))
 

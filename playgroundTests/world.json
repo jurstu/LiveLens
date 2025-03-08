@@ -1,0 +1,34 @@
+{
+    "version": {
+        "major": 1,
+        "minor": 0
+    },
+    "objects":
+    [
+        {
+            "name": "pointA",
+            "type": "point",
+            "position": [0, 0, 0]
+        },
+        {
+            "name": "pointB", 
+            "type": "point",
+            "position": [1, 0, 0]
+        },
+        {
+            "name": "pointC",
+            "type": "point",
+            "position": [0, 1, 0]
+        },
+        {
+            "name": "pointD",
+            "type": "point",
+            "positions": [1, 1, 0]
+        },
+        {
+            "name": "pointE",
+            "type": "point",
+            "position": [0, 0, 1]
+        }
+    ]
+}
