@@ -66,7 +66,7 @@ class View:
 
 if __name__ == "__main__":
     view = View()
-
+    view.worldStore.generateFloor(np.array([10, 0, 1]), 10, 0.1)
     position = [-1, 0.3, 0]
     view.setCameraPosAtt(position, -5, 0, 0)
 
@@ -78,6 +78,9 @@ if __name__ == "__main__":
         if cv2.waitKey(33) & 0xFF == 27:  # Press 'ESC' to exit
             break
         position[2] = np.sin(np.deg2rad(i)) * 0.2
-        view.setCameraPosAtt(position, 0 * np.cos(np.deg2rad(i)), 0, np.sin(np.deg2rad(i)))
+        view.setCameraPosAtt(position, 
+                            0 * np.cos(np.deg2rad(i)), 
+                            0, 
+                            np.sin(np.deg2rad(i)))
 
     cv2.destroyAllWindows()

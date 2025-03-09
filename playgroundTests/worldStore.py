@@ -46,6 +46,14 @@ class WorldStore:
             logger.info(p)
         
 
+    def generateFloor(self, pos: np.ndarray, squareSize: int, spacing: int = 0.3):
+        for x in range(-squareSize, squareSize):
+            for y in range(-squareSize, squareSize):
+
+                point = ThreeDeePoint(*(pos + np.array([x*spacing, y*spacing, 0])))
+
+                self.pointList.append(point)
+
 
 
 

@@ -2,6 +2,7 @@ import numpy as np
 from scipy.spatial.transform import Rotation as R
 from loggingSetup import getLogger
 
+
 logger = getLogger(__name__)
 
 def getExampleK():
@@ -16,7 +17,7 @@ class PinholeCamera:
     def __init__(self, K):
         self.K = K
 
-    def getProjections(self, points3D, roll, pitch, yaw, cameraPos):
+    def getProjections(self, points3D: np.ndarray, roll: float, pitch: float, yaw:float, cameraPos: np.ndarray):
         # later in projection it goes like this
         # X-axis: Points to the right in the image plane.
         # Y-axis: Points downward in the image plane.
