@@ -31,27 +31,27 @@ class GifGenerator:
 
 if __name__ == "__main__":
     view = View()
-
-    position = [-1, 0.3, 0]
+    view.worldStore.generateFloor(np.array([0, 0, 0]), 3, 0.05)
+    R = 1
+    position = [-R, 0, 0.1]
     view.setCameraPosAtt(position, 0, 0, 0)
-    view.worldStore.generateFloor(np.array([10, 3, -2]), 10, 0.1)
+    angle = 0
 
-    i = 0
     frames = []
-    while i < 360:
-        i += 5
+    while angle < 360:
+        angle += 5
         cv2.imshow("main view", view.canvas)
+        position = [-R * np.cos(np.deg2rad(angle)), R * np.sin(np.deg2rad(angle)), 0.1]
+        view.setCameraPosAtt(position, 0, 0, angle + 90)
         view.drawWorld()
         frames.append(view.canvas)
         if cv2.waitKey(33) & 0xFF == 27:  # Press 'ESC' to exit
             break
-        position[2] = np.sin(np.deg2rad(i)) * 0.2
-        view.setCameraPosAtt(position, 
-                             0 * np.cos(np.deg2rad(i)), 
-                             0, 
-                             0 * np.sin(np.deg2rad(i)))
 
     cv2.destroyAllWindows()
 
     gg = GifGenerator(frames, dt=0.033)
     gg.write("../.github/static/animation.gif")
+
+
+

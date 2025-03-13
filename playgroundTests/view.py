@@ -66,21 +66,23 @@ class View:
 
 if __name__ == "__main__":
     view = View()
-    view.worldStore.generateFloor(np.array([10, 0, 1]), 10, 0.1)
-    position = [-1, 0.3, 0]
-    view.setCameraPosAtt(position, -5, 0, 0)
+    view.worldStore.generateFloor(np.array([0, 0, 0]), 3, 0.05)
+    R = 1
+    position = [-R, 0, 0.1]
+    view.setCameraPosAtt(position, 0, 0, 0)
 
-    i = 0
+    angle = 0
     while True:
-        i += 10
-        cv2.imshow("main view", view.canvas)
+        angle += 1
+        
+        position = [-R * np.cos(np.deg2rad(angle)), R * np.sin(np.deg2rad(angle)), 0.1]
+        view.setCameraPosAtt(position, 0, 0, angle + 90)
         view.drawWorld()
+        cv2.imshow("main view", view.canvas)
+        
         if cv2.waitKey(33) & 0xFF == 27:  # Press 'ESC' to exit
             break
-        position[2] = np.sin(np.deg2rad(i)) * 0.2
-        view.setCameraPosAtt(position, 
-                            0 * np.cos(np.deg2rad(i)), 
-                            0, 
-                            np.sin(np.deg2rad(i)))
+        
+        
 
     cv2.destroyAllWindows()

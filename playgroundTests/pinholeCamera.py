@@ -62,7 +62,7 @@ class PinholeCamera:
         R = Rr @ Rp @ Ry
 
         # not sure if this should be here
-        #T = -np.dot(R, T)
+        T = -np.dot(R, T)
 
         # Compute the projection matrix: P = K [R | T]
         
