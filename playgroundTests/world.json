@@ -6,6 +6,17 @@
     "objects":
     [
         {
+            "name": "my first texture",
+            "type": "sprite",
+            "points": [
+                [0,     0, 0],
+                [0.1,   0, 0],
+                [0.1, 0.1, 0],
+                [  0, 0.1, 0]
+            ],
+            "texturePath": "./assets/aruco.png"
+        },
+        {
             "name": "pointA",
             "type": "point",
             "position": [0, 0, 0.2]

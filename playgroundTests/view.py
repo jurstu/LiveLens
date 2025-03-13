@@ -39,8 +39,9 @@ class View:
         for pt in points:
             pointsNp.append([pt.x, pt.y, pt.z])
         pointsNp = np.array(pointsNp)
-        
+
         # TODO check edge-case where there are no points to calculate
+        # TESTED nothing fails
         pixelPositions = self.pinholeCamera.getProjections(pointsNp, self.roll, self.pitch, self.yaw, self.cameraPos)
         pixelPositions = pixelPositions.astype(np.int32)
         #pixelPositions += np.array([self.width/2, -self.height/2], dtype=np.int32)
@@ -48,6 +49,41 @@ class View:
         for i, pixel in enumerate(pixelPositions):
             #logger.debug(pixel)
             cv2.circle(self.canvas, pixel, 5, (0, 0, 0))
+
+
+        sprites = self.worldStore.spriteList
+        pointsNp = []
+        for sprite in sprites:
+            for i in range(4):
+                spritePoints = sprite.points
+                pointsNp.append([spritePoints[i][0], spritePoints[i][1], spritePoints[i][2]])
+        pointsNp = np.array(pointsNp)
+        pixelPositions = self.pinholeCamera.getProjections(pointsNp, self.roll, self.pitch, self.yaw, self.cameraPos)
+        pixelPositions = pixelPositions.astype(np.int32)
+        for i in range(len(pixelPositions)//4):
+            corners = pixelPositions[i*4:(i+1)*4]
+            sprite = sprites[i]
+            hh, ww = sprite.image.shape[:2]
+            src = [[0, 0], [0, ww], [hh, ww], [hh, 0]]      # clockwise, from top-left
+            dst = [
+                corners[0],
+                corners[1],
+                corners[2],
+                corners[3]
+            ] # yes, this could be done with a loop! TODO
+            src = np.array(src, np.float32)
+            dst = np.array(dst, np.float32)
+
+            M = cv2.getPerspectiveTransform(src, dst)
+            warp = cv2.warpPerspective(sprite.image, M, (self.width, self.height))
+            self.canvas = warp
+
+
+        #pixelPositions += np.array([self.width/2, -self.height/2], dtype=np.int32)
+
+        
+
+
 
         lines = []
         lines.append("roll: {:0.2f}".format(self.roll))
@@ -75,7 +111,7 @@ if __name__ == "__main__":
     while True:
         angle += 1
         
-        position = [-R * np.cos(np.deg2rad(angle)), R * np.sin(np.deg2rad(angle)), 0.1]
+        position = [-R * np.cos(np.deg2rad(angle)), R * np.sin(np.deg2rad(angle)), 0.3]
         view.setCameraPosAtt(position, 0, 0, angle + 90)
         view.drawWorld()
         cv2.imshow("main view", view.canvas)

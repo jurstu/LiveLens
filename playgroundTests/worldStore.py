@@ -3,6 +3,7 @@ import json as js
 import logging
 from loggingSetup import getLogger
 from threeDeePoint import ThreeDeePoint
+from sprite import Sprite
 
 logger = getLogger(__name__)
 
@@ -25,6 +26,7 @@ class WorldStore:
 
             self.objects = self.world["objects"]
             self.pointList = []
+            self.spriteList = []
             for i, object in enumerate(self.objects):
                 objType = object["type"]
                 objName = object["name"]
@@ -34,6 +36,15 @@ class WorldStore:
                                                     position[1], 
                                                     position[2], 
                                                     objName))
+            
+                if(objType == "sprite"):
+                    points = object["points"]
+                    texturePath = object["texturePath"]
+                    sprite = Sprite(points, texturePath, objName)
+                    self.spriteList.append(sprite)
+                    logger.debug("Loaded a sprite texture from " + texturePath)
+
+
         except Exception as e:
             logger.error("Could not load the whole world")
             logger.exception(e)
