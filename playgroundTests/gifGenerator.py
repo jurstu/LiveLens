@@ -41,7 +41,7 @@ if __name__ == "__main__":
     while angle < 360:
         angle += 5
         cv2.imshow("main view", view.canvas)
-        position = [-R * np.cos(np.deg2rad(angle)), R * np.sin(np.deg2rad(angle)), 0.1]
+        position = [-R * np.cos(np.deg2rad(angle)), R * np.sin(np.deg2rad(angle)), 0.3]
         view.setCameraPosAtt(position, 0, 0, angle + 90)
         view.drawWorld()
         frames.append(view.canvas)
