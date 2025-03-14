@@ -17,6 +17,17 @@
             "texturePath": "./assets/aruco.png"
         },
         {
+            "name": "my second texture",
+            "type": "sprite",
+            "points": [
+                [0.3, -0.1, -0.1],
+                [0.3,  0.1, -0.1],
+                [0.3,  0.1,  0.1],
+                [0.3, -0.1,  0.1]
+            ],
+            "texturePath": "./assets/aruco.png"
+        },
+        {
             "name": "pointA",
             "type": "point",
             "position": [0, 0, 0.2]
