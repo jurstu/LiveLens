@@ -14,4 +14,4 @@ To **win stupid prizes** you need to **play stupid games**. This game is mine.
 
 For once, basic rendering of the world, and I really mean very basic (fps not to scale).
 
-![what's rendering right now](.github/static/animation.gif "what's rendering right now")
+![what's rendering right now](.github/static/animation.gif? "what's rendering right now")

@@ -31,8 +31,8 @@ class GifGenerator:
 
 if __name__ == "__main__":
     view = View()
-    view.worldStore.generateFloor(np.array([0, 0, 0]), 3, 0.05)
-    R = 1
+    view.worldStore.generateFloor(np.array([0, 0, -0.1]), 3, 0.05)
+    R = 1.3
     position = [-R, 0, 0.1]
     view.setCameraPosAtt(position, 0, 0, 0)
     angle = 0
@@ -51,7 +51,7 @@ if __name__ == "__main__":
     cv2.destroyAllWindows()
 
     gg = GifGenerator(frames, dt=0.033)
-    gg.write("../.github/static/animation.gif?")
+    gg.write("../.github/static/animation.gif")
 
 
 

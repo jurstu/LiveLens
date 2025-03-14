@@ -60,6 +60,7 @@ class View:
         pointsNp = np.array(pointsNp)
         pixelPositions = self.pinholeCamera.getProjections(pointsNp, self.roll, self.pitch, self.yaw, self.cameraPos)
         pixelPositions = pixelPositions.astype(np.int32)
+        
         for i in range(len(pixelPositions)//4):
             corners = pixelPositions[i*4:(i+1)*4]
             sprite = sprites[i]
@@ -76,7 +77,13 @@ class View:
 
             M = cv2.getPerspectiveTransform(src, dst)
             warp = cv2.warpPerspective(sprite.image, M, (self.width, self.height))
-            self.canvas = warp
+            mask = np.zeros((self.height, self.width), dtype=np.uint8)
+            cv2.fillPoly(mask, [dst.astype(np.int32)], 255)
+            mask_inv = cv2.bitwise_not(mask)
+            warpedSpriteOnly = cv2.bitwise_and(warp, warp, mask=mask)
+            canvasBg = cv2.bitwise_and(self.canvas, self.canvas, mask=mask_inv)
+            self.canvas = cv2.add(canvasBg, warpedSpriteOnly)
+            #self.canvas = warp
 
 
         #pixelPositions += np.array([self.width/2, -self.height/2], dtype=np.int32)
@@ -109,7 +116,7 @@ if __name__ == "__main__":
 
     angle = 0
     while True:
-        angle += 1
+        angle += 5
         
         position = [-R * np.cos(np.deg2rad(angle)), R * np.sin(np.deg2rad(angle)), 0.3]
         view.setCameraPosAtt(position, 0, 0, angle + 90)
