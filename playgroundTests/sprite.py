@@ -14,7 +14,14 @@ class Sprite:
     def load(self):
         try:
             self.image = cv2.imread(self.filePath)
-
+            xSum = 0
+            ySum = 0
+            for i in range(4):
+                xSum += self.points[i][0]
+                ySum += self.points[i][1]
+            xSum /= 4
+            ySum /= 4
+            self.center = [xSum, ySum]
         except:
             logger.error("Couldn't load sprite", exc_info=True)
             self.image = np.array([100, 100, 3])
