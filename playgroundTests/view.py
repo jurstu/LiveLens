@@ -40,6 +40,9 @@ class View:
         cv2.circle(self.canvas, pp[0], 5, (0, 0, 0))
 
     def drawSprite(self, sprite:Sprite):
+        cp = [self.cameraPos[1], -self.cameraPos[2], -self.cameraPos[0]]
+        if(sprite.isSpriteFacingCam(cp)):
+            return
         corners = []
         for i in range(4):
             corners.append([sprite.points[i][0], sprite.points[i][1], sprite.points[i][2]])
@@ -48,7 +51,8 @@ class View:
         pp = pp.astype(np.int32)
         hh, ww = sprite.image.shape[:2]
         
-        src = [[0, 0], [0, ww], [hh, ww], [hh, 0]]
+        mv = 8
+        src = [[mv, mv], [mv, ww-mv], [hh-mv, ww-mv], [hh-mv, mv]]
         dst = []
         for i in range(4):
             dst.append(pp[i])
@@ -83,13 +87,7 @@ class View:
                     self.drawPoint(object)
                 case _:
                     logger.error("object type not handled by renderer")
-
-        #pixelPositions += np.array([self.width/2, -self.height/2], dtype=np.int32)
-
-        
-
-
-
+                    
         lines = []
         lines.append("roll: {:0.2f}".format(self.roll))
         lines.append("pitch: {:0.2f}".format(self.pitch))

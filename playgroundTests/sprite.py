@@ -9,8 +9,17 @@ class Sprite:
         self.points = points
         self.filePath = filePath
         self.name = name
-        self.center = [0, 0, 0]
+        self.center = np.array([0, 0, 0])
         self.load()
+
+    def isSpriteFacingCam(self, cameraPos:np.ndarray = [0, 0, 0]):
+        p0, p1, p2, _ = map(np.array, self.points)
+        v1 = p1 - p0
+        v2 = p2 - p0
+        normal = np.cross(v1, v2)
+        viewVector = cameraPos - self.center
+        dotProduct = np.dot(normal, viewVector)
+        return dotProduct > 0 
 
 
     def getDistNorm(self, pos:np.ndarray = [0, 0, 0]):
@@ -33,7 +42,7 @@ class Sprite:
             xSum /= 4
             ySum /= 4
             zSum /= 4
-            self.center = [xSum, ySum, zSum]
+            self.center = np.array([xSum, ySum, zSum])
         except:
             logger.error("Couldn't load sprite", exc_info=True)
             self.image = np.array([100, 100, 3])
