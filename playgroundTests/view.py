@@ -4,6 +4,8 @@ import numpy as np
 from pinholeCamera import PinholeCamera, getExampleK
 from worldStore import WorldStore
 from loggingSetup import getLogger
+from threeDeePoint import ThreeDeePoint
+from sprite import Sprite
 
 logger = getLogger(__name__)
 
@@ -30,61 +32,57 @@ class View:
         self.pitch = pitch
         self.yaw = yaw
 
+
+    def drawPoint(self, point:ThreeDeePoint):
+        point = np.array([[point.x, point.y, point.z]])
+        pp = self.pinholeCamera.getProjections(point, self.roll, self.pitch, self.yaw, self.cameraPos)
+        pp = pp.astype(np.int32)
+        cv2.circle(self.canvas, pp[0], 5, (0, 0, 0))
+
+    def drawSprite(self, sprite:Sprite):
+        corners = []
+        for i in range(4):
+            corners.append([sprite.points[i][0], sprite.points[i][1], sprite.points[i][2]])
+        corners = np.array(corners)
+        pp = self.pinholeCamera.getProjections(corners, self.roll, self.pitch, self.yaw, self.cameraPos)
+        pp = pp.astype(np.int32)
+        hh, ww = sprite.image.shape[:2]
+        
+        src = [[0, 0], [0, ww], [hh, ww], [hh, 0]]
+        dst = []
+        for i in range(4):
+            dst.append(pp[i])
+        src = np.array(src, np.float32)
+        dst = np.array(dst, np.float32)
+        M = cv2.getPerspectiveTransform(src, dst)
+        warp = cv2.warpPerspective(sprite.image, M, (self.width, self.height))
+        mask = np.zeros((self.height, self.width), dtype=np.uint8)
+        cv2.fillPoly(mask, [dst.astype(np.int32)], 255)
+        mask_inv = cv2.bitwise_not(mask)
+        warpedSpriteOnly = cv2.bitwise_and(warp, warp, mask=mask)
+        canvasBg = cv2.bitwise_and(self.canvas, self.canvas, mask=mask_inv)
+        self.canvas = cv2.add(canvasBg, warpedSpriteOnly)
+
+
     def drawWorld(self):
         self.canvas = np.zeros((self.height, self.width, 3), dtype=np.uint8)
         self.canvas[:] = np.array(self.bgColor, dtype=np.uint8)
 
+
+
         points = self.worldStore.pointList
-        pointsNp = []
-        for pt in points:
-            pointsNp.append([pt.x, pt.y, pt.z])
-        pointsNp = np.array(pointsNp)
-
-        # TODO check edge-case where there are no points to calculate
-        # TESTED nothing fails
-        pixelPositions = self.pinholeCamera.getProjections(pointsNp, self.roll, self.pitch, self.yaw, self.cameraPos)
-        pixelPositions = pixelPositions.astype(np.int32)
-        #pixelPositions += np.array([self.width/2, -self.height/2], dtype=np.int32)
-
-        for i, pixel in enumerate(pixelPositions):
-            #logger.debug(pixel)
-            cv2.circle(self.canvas, pixel, 5, (0, 0, 0))
-
-
         sprites = self.worldStore.spriteList
-        pointsNp = []
-        for sprite in sprites:
-            for i in range(4):
-                spritePoints = sprite.points
-                pointsNp.append([spritePoints[i][0], spritePoints[i][1], spritePoints[i][2]])
-        pointsNp = np.array(pointsNp)
-        pixelPositions = self.pinholeCamera.getProjections(pointsNp, self.roll, self.pitch, self.yaw, self.cameraPos)
-        pixelPositions = pixelPositions.astype(np.int32)
-        
-        for i in range(len(pixelPositions)//4):
-            corners = pixelPositions[i*4:(i+1)*4]
-            sprite = sprites[i]
-            hh, ww = sprite.image.shape[:2]
-            src = [[0, 0], [0, ww], [hh, ww], [hh, 0]]      # clockwise, from top-left
-            dst = [
-                corners[0],
-                corners[1],
-                corners[2],
-                corners[3]
-            ] # yes, this could be done with a loop! TODO
-            src = np.array(src, np.float32)
-            dst = np.array(dst, np.float32)
+        cp = [self.cameraPos[1], -self.cameraPos[2], -self.cameraPos[0]]
+        combinedList = sorted(points + sprites, key=lambda obj: -obj.getDistNorm(cp))
 
-            M = cv2.getPerspectiveTransform(src, dst)
-            warp = cv2.warpPerspective(sprite.image, M, (self.width, self.height))
-            mask = np.zeros((self.height, self.width), dtype=np.uint8)
-            cv2.fillPoly(mask, [dst.astype(np.int32)], 255)
-            mask_inv = cv2.bitwise_not(mask)
-            warpedSpriteOnly = cv2.bitwise_and(warp, warp, mask=mask)
-            canvasBg = cv2.bitwise_and(self.canvas, self.canvas, mask=mask_inv)
-            self.canvas = cv2.add(canvasBg, warpedSpriteOnly)
-            #self.canvas = warp
-
+        for object in combinedList:
+            match object:
+                case Sprite():
+                    self.drawSprite(object)
+                case ThreeDeePoint():
+                    self.drawPoint(object)
+                case _:
+                    logger.error("object type not handled by renderer")
 
         #pixelPositions += np.array([self.width/2, -self.height/2], dtype=np.int32)
 
@@ -123,7 +121,7 @@ if __name__ == "__main__":
         view.drawWorld()
         cv2.imshow("main view", view.canvas)
         
-        if cv2.waitKey(33) & 0xFF == 27:  # Press 'ESC' to exit
+        if cv2.waitKey(16) & 0xFF == 27:  # Press 'ESC' to exit
             break
         
         
