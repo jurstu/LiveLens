@@ -13,13 +13,23 @@ class Sprite:
         self.load()
 
     def isSpriteFacingCam(self, cameraPos:np.ndarray = [0, 0, 0]):
+        #XX =  points3D[:, 0]
+        #YY = -points3D[:, 2]
+        #ZZ =  points3D[:, 1]    
+
         p0, p1, p2, _ = map(np.array, self.points)
         v1 = p1 - p0
         v2 = p2 - p0
-        normal = np.cross(v1, v2)
-        viewVector = cameraPos - self.center
+        # this needs cleaning in a whole project #TODO
+        v1 = np.array([v1[0], -v1[2], v1[1]])
+        v2 = np.array([v2[0], -v2[2], v2[1]])
+
+        normal = np.cross(v1, -v2)
+        
+
+        viewVector = cameraPos - p0
         dotProduct = np.dot(normal, viewVector)
-        return dotProduct > 0 
+        return dotProduct < 0 
 
 
     def getDistNorm(self, pos:np.ndarray = [0, 0, 0]):

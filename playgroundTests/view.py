@@ -41,7 +41,7 @@ class View:
 
     def drawSprite(self, sprite:Sprite):
         cp = [self.cameraPos[1], -self.cameraPos[2], -self.cameraPos[0]]
-        if(sprite.isSpriteFacingCam(cp)):
+        if(not sprite.isSpriteFacingCam(cp)):
             return
         corners = []
         for i in range(4):
@@ -112,7 +112,7 @@ if __name__ == "__main__":
 
     angle = 0
     while True:
-        angle += 5
+        angle += 1
         
         position = [-R * np.cos(np.deg2rad(angle)), R * np.sin(np.deg2rad(angle)), 0.3]
         view.setCameraPosAtt(position, 0, 0, angle + 90)
