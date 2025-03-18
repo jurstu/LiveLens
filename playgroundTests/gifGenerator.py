@@ -44,7 +44,7 @@ if __name__ == "__main__":
         position = [-R * np.cos(np.deg2rad(angle)), R * np.sin(np.deg2rad(angle)), 0.3]
         view.setCameraPosAtt(position, 0, 0, angle + 90)
         view.drawWorld()
-        frames.append(view.canvas)
+        frames.append(cv2.cvtColor(view.canvas, cv2.COLOR_BGR2RGB))
         if cv2.waitKey(33) & 0xFF == 27:  # Press 'ESC' to exit
             break
 
