@@ -51,7 +51,7 @@ if __name__ == "__main__":
     cv2.destroyAllWindows()
 
     gg = GifGenerator(frames, dt=0.033)
-    gg.write("../.github/static/animation.gif")
+    gg.write("../../.github/static/animation.gif")
 
 
 

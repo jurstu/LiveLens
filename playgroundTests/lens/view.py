@@ -1,5 +1,4 @@
 import cv2
-import cv2.text
 import numpy as np
 from pinholeCamera import PinholeCamera, getExampleK
 from worldStore import WorldStore
