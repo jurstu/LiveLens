@@ -24,5 +24,5 @@ def generate_test_image(width=512, height=512, filename='assets/testImage.png'):
     # Save and show image
     cv2.imwrite(filename, img)
 
-# Generate and display the image
-generate_test_image()
+if __name__ == "__main__":
+    generate_test_image()

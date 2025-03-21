@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.spatial.transform import Rotation as R
-from loggingSetup import getLogger
+from liveLens.loggingSetup import getLogger
 
 
 logger = getLogger(__name__)

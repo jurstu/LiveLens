@@ -1,9 +1,9 @@
 import numpy as np
 import json as js
 import logging
-from loggingSetup import getLogger
-from threeDeePoint import ThreeDeePoint
-from sprite import Sprite
+from liveLens.loggingSetup import getLogger
+from liveLens.threeDeePoint import ThreeDeePoint
+from liveLens.sprite import Sprite
 
 logger = getLogger(__name__)
 

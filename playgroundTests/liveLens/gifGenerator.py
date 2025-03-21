@@ -1,10 +1,9 @@
 import cv2
-import cv2.text
 import numpy as np
-from pinholeCamera import PinholeCamera, getExampleK
-from worldStore import WorldStore
-from view import View
-from loggingSetup import getLogger
+from liveLens.pinholeCamera import PinholeCamera, getExampleK
+from liveLens.worldStore import WorldStore
+from liveLens.view import View
+from liveLens.loggingSetup import getLogger
 
 import imageio
 
@@ -18,9 +17,10 @@ class GifGenerator:
         self.outputSize = outputSize
         
 
-    def write(self, gifName, loop=2048):
+    def write(self, gifName, loop=32):
         for frame in self.frames:
             frame = cv2.resize(frame, self.outputSize)
+            logger.debug("resizing ...")
 
         imageio.mimsave(gifName, self.frames, fps=1/self.dt, loop=loop)
 
@@ -40,18 +40,20 @@ if __name__ == "__main__":
     frames = []
     while angle < 360:
         angle += 5
-        cv2.imshow("main view", view.canvas)
+        print(angle)
+        #cv2.imshow("main view", view.canvas)
+        #if cv2.waitKey(33) & 0xFF == 27:  # Press 'ESC' to exit
+        #    break
         position = [-R * np.cos(np.deg2rad(angle)), R * np.sin(np.deg2rad(angle)), 0.3]
         view.setCameraPosAtt(position, 0, 0, angle + 90)
         view.drawWorld()
         frames.append(cv2.cvtColor(view.canvas, cv2.COLOR_BGR2RGB))
-        if cv2.waitKey(33) & 0xFF == 27:  # Press 'ESC' to exit
-            break
+        
 
-    cv2.destroyAllWindows()
+    #cv2.destroyAllWindows()
 
     gg = GifGenerator(frames, dt=0.033)
-    gg.write("../../.github/static/animation.gif")
+    gg.write("../.github/static/animation.gif")
 
 
 

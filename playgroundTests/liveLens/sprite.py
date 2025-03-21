@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-from loggingSetup import getLogger
+from liveLens.loggingSetup import getLogger
 
 logger = getLogger(__name__)
 

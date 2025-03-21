@@ -1,10 +1,15 @@
 import cv2
 import numpy as np
-from pinholeCamera import PinholeCamera, getExampleK
-from worldStore import WorldStore
-from loggingSetup import getLogger
-from threeDeePoint import ThreeDeePoint
-from sprite import Sprite
+import time
+
+from liveLens.pinholeCamera import PinholeCamera, getExampleK
+from liveLens.worldStore import WorldStore
+from liveLens.loggingSetup import getLogger
+from liveLens.threeDeePoint import ThreeDeePoint
+from liveLens.sprite import Sprite
+
+
+
 
 logger = getLogger(__name__)
 
@@ -103,6 +108,9 @@ class View:
 
 
 if __name__ == "__main__":
+    from webView.webView import UiGen
+    ug = UiGen(1280, 720)
+    ug.run()
     view = View()
     view.worldStore.generateFloor(np.array([0, 0, 0]), 3, 0.05)
     R = 1
@@ -116,10 +124,12 @@ if __name__ == "__main__":
         position = [-R * np.cos(np.deg2rad(angle)), R * np.sin(np.deg2rad(angle)), 0.3]
         view.setCameraPosAtt(position, 0, 0, angle + 90)
         view.drawWorld()
-        cv2.imshow("main view", view.canvas)
+        ug.lastImage = view.canvas
+        #cv2.imshow("main view", view.canvas)
         
-        if cv2.waitKey(16) & 0xFF == 27:  # Press 'ESC' to exit
-            break
+        #if cv2.waitKey(16) & 0xFF == 27:  # Press 'ESC' to exit
+        #    break
+        #time.sleep(0.033)
         
         
 
