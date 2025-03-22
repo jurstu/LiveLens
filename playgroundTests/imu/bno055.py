@@ -37,7 +37,7 @@ class BNO055:
         logger.debug("starting BNO055")
         while True:
             self.read_euler()
-            logger.debug(f"Heading: {self.heading:.2f}°, Roll: {self.roll:.2f}°, Pitch: {self.pitch:.2f}°")
+            #logger.debug(f"Heading: {self.heading:.2f}°, Roll: {self.roll:.2f}°, Pitch: {self.pitch:.2f}°")
             time.sleep(0.01)
 
 

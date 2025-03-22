@@ -54,10 +54,12 @@ class View:
         mask = np.zeros((self.height, self.width), dtype=np.uint8)
         cv2.fillPoly(mask, [dst.astype(np.int32)], 255)
         
-        mask_inv = cv2.bitwise_not(mask)
-        warpedSpriteOnly = cv2.bitwise_and(warp, warp, mask=mask)
-        canvasBg = cv2.bitwise_and(self.canvas, self.canvas, mask=mask_inv)
-        self.canvas = cv2.add(canvasBg, warpedSpriteOnly)
+        cv2.copyTo(warp, mask, self.canvas)
+
+        #mask_inv = cv2.bitwise_not(mask)
+        #warpedSpriteOnly = cv2.bitwise_and(warp, warp, mask=mask)
+        #canvasBg = cv2.bitwise_and(self.canvas, self.canvas, mask=mask_inv)
+        #self.canvas = cv2.add(canvasBg, warpedSpriteOnly)
 
 
     def drawWorld(self):
