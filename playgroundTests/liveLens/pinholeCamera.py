@@ -78,9 +78,9 @@ class PinholeCamera:
         zCam = points2DHom[2, :]
 
         # only extract points in front of the camera
-        validMask = zCam > 0
+        #validMask = zCam > 0
         
-        points2DHom = points2DHom[:, validMask]
+        #points2DHom = points2DHom[:, validMask]
 
         # Normalize homogeneous coordinates to get (x, y) image coordinates
         points2D = (points2DHom[:2] / points2DHom[2]).T.astype(int)

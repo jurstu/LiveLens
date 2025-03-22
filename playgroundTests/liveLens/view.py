@@ -37,35 +37,24 @@ class View:
         self.yaw = yaw
 
 
-    def drawPoint(self, point:ThreeDeePoint):
-        point = np.array([[point.x, point.y, point.z]])
-        pp = self.pinholeCamera.getProjections(point, self.roll, self.pitch, self.yaw, self.cameraPos)
-        pp = pp.astype(np.int32)
-        cv2.circle(self.canvas, pp[0], 5, (0, 0, 0))
+    def drawPoint(self, point:ThreeDeePoint, dist:np.ndarray):
+        #logger.debug(dist)
+        cv2.circle(self.canvas, dist, 5, (0, 0, 0))
 
-    def drawSprite(self, sprite:Sprite):
-        cp = [self.cameraPos[1], -self.cameraPos[2], -self.cameraPos[0]]
-        if(not sprite.isSpriteFacingCam(cp)):
-            return
-        corners = []
-        for i in range(4):
-            corners.append([sprite.points[i][0], sprite.points[i][1], sprite.points[i][2]])
-        corners = np.array(corners)
-        pp = self.pinholeCamera.getProjections(corners, self.roll, self.pitch, self.yaw, self.cameraPos)
-        pp = pp.astype(np.int32)
-        hh, ww = sprite.image.shape[:2]
-        
+    def drawSprite(self, sprite:Sprite, dst:np.ndarray):
+        return
         mv = 8
+        hh, ww = sprite.image.shape[:2]
         src = [[mv, mv], [mv, ww-mv], [hh-mv, ww-mv], [hh-mv, mv]]
-        dst = []
-        for i in range(4):
-            dst.append(pp[i])
+
         src = np.array(src, np.float32)
         dst = np.array(dst, np.float32)
         M = cv2.getPerspectiveTransform(src, dst)
         warp = cv2.warpPerspective(sprite.image, M, (self.width, self.height))
+        
         mask = np.zeros((self.height, self.width), dtype=np.uint8)
         cv2.fillPoly(mask, [dst.astype(np.int32)], 255)
+        
         mask_inv = cv2.bitwise_not(mask)
         warpedSpriteOnly = cv2.bitwise_and(warp, warp, mask=mask)
         canvasBg = cv2.bitwise_and(self.canvas, self.canvas, mask=mask_inv)
@@ -83,18 +72,36 @@ class View:
         cp = [self.cameraPos[1], -self.cameraPos[2], -self.cameraPos[0]]
         combinedList = sorted(points + sprites, key=lambda obj: -obj.getDistNorm(cp))
 
-        
+        rawPointsList = []
         for object in combinedList:
             match object:
                 case Sprite():
-                    s = time.time()
-                    self.drawSprite(object)
-                    logger.debug(f"drawing sprite took {time.time() - s}s")
-                    logger.debug(f"sprite name {object.name}")
+                    if(not object.isSpriteFacingCam(cp)):
+                        continue
+                    for i in range(4):
+                        rawPointsList.append([object.points[i][0], object.points[i][1], object.points[i][2]])
                 case ThreeDeePoint():
-                    s = time.time()
-                    self.drawPoint(object)
-                    logger.debug(f"drawing point took {time.time() - s}s")
+                    rawPointsList.append([object.x, object.y, object.z])
+                case _:
+                    logger.error("object type not handled by renderer")
+
+        rawPointsList = np.array(rawPointsList)
+        pp = self.pinholeCamera.getProjections(rawPointsList, self.roll, self.pitch, self.yaw, self.cameraPos)
+        pp = pp.astype(np.int32)
+
+        counter = 0
+        for object in combinedList:
+            match object:
+                case Sprite():
+                    if(not object.isSpriteFacingCam(cp)):
+                        continue
+                    dist = pp[counter:counter+4]
+                    counter+=4
+                    self.drawSprite(object, dist)
+                case ThreeDeePoint():
+                    dist = pp[counter]
+                    counter+=1
+                    self.drawPoint(object, dist)
                 case _:
                     logger.error("object type not handled by renderer")
                     
@@ -124,9 +131,11 @@ if __name__ == "__main__":
     view.setCameraPosAtt(position, 0, 0, 0)
 
     angle = 0
+    tt = time.time()
     while True:
         angle += 1
         
+        print(angle, "{:02.2f}".format(angle/(time.time()-tt)))
         position = [-R * np.cos(np.deg2rad(angle)), R * np.sin(np.deg2rad(angle)), 0.3]
         view.setCameraPosAtt(position, 0, 0, angle + 90)
         view.drawWorld()
