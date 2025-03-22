@@ -83,12 +83,18 @@ class View:
         cp = [self.cameraPos[1], -self.cameraPos[2], -self.cameraPos[0]]
         combinedList = sorted(points + sprites, key=lambda obj: -obj.getDistNorm(cp))
 
+        
         for object in combinedList:
             match object:
                 case Sprite():
+                    s = time.time()
                     self.drawSprite(object)
+                    logger.debug(f"drawing sprite took {time.time() - s}s")
+                    logger.debug(f"sprite name {object.name}")
                 case ThreeDeePoint():
+                    s = time.time()
                     self.drawPoint(object)
+                    logger.debug(f"drawing point took {time.time() - s}s")
                 case _:
                     logger.error("object type not handled by renderer")
                     
