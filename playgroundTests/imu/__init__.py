@@ -1,1 +1,1 @@
-from .imu import BNO055
+import imu.bno055
