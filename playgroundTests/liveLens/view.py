@@ -42,7 +42,6 @@ class View:
         cv2.circle(self.canvas, dist, 5, (0, 0, 0))
 
     def drawSprite(self, sprite:Sprite, dst:np.ndarray):
-        return
         mv = 8
         hh, ww = sprite.image.shape[:2]
         src = [[mv, mv], [mv, ww-mv], [hh-mv, ww-mv], [hh-mv, mv]]
@@ -63,14 +62,15 @@ class View:
 
     def drawWorld(self):
         self.canvas = np.zeros((self.height, self.width, 3), dtype=np.uint8)
-        self.canvas[:] = np.array(self.bgColor, dtype=np.uint8)
+        self.canvas[:] = 255
+        
 
-
-
+        
         points = self.worldStore.pointList
         sprites = self.worldStore.spriteList
         cp = [self.cameraPos[1], -self.cameraPos[2], -self.cameraPos[0]]
         combinedList = sorted(points + sprites, key=lambda obj: -obj.getDistNorm(cp))
+        
 
         rawPointsList = []
         for object in combinedList:
@@ -86,7 +86,7 @@ class View:
                     logger.error("object type not handled by renderer")
 
         rawPointsList = np.array(rawPointsList)
-        pp = self.pinholeCamera.getProjections(rawPointsList, self.roll, self.pitch, self.yaw, self.cameraPos)
+        pp, z = self.pinholeCamera.getProjections(rawPointsList, self.roll, self.pitch, self.yaw, self.cameraPos)
         pp = pp.astype(np.int32)
 
         counter = 0
@@ -95,13 +95,18 @@ class View:
                 case Sprite():
                     if(not object.isSpriteFacingCam(cp)):
                         continue
+                    zs = z[counter:counter+4]
                     dist = pp[counter:counter+4]
                     counter+=4
+                    
                     self.drawSprite(object, dist)
                 case ThreeDeePoint():
                     dist = pp[counter]
+                    if(z[counter] > 0):
+                        self.drawPoint(object, dist)
                     counter+=1
-                    self.drawPoint(object, dist)
+                    
+                    
                 case _:
                     logger.error("object type not handled by renderer")
                     

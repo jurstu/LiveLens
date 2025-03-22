@@ -32,7 +32,7 @@ if __name__ == "__main__":
     ll = LiveLens()
 
     while(1):
-        ll.view.setCameraPosAtt(ll.position, ll.imu.roll, ll.imu.pitch, -ll.imu.heading)
+        ll.view.setCameraPosAtt(ll.position, ll.imu.roll, ll.imu.pitch, ll.imu.heading)
         ll.view.drawWorld()
         ug.lastImage = ll.view.canvas
         #time.sleep(0.01)

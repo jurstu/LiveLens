@@ -85,4 +85,4 @@ class PinholeCamera:
         # Normalize homogeneous coordinates to get (x, y) image coordinates
         points2D = (points2DHom[:2] / points2DHom[2]).T.astype(int)
         
-        return points2D
+        return points2D, zCam

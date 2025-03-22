@@ -52,7 +52,7 @@ class UiGen:
             _, raw = cv2.imencode(".jpg", self.lastImage)      
             return Response(content=raw.tobytes(), media_type="image/jpg") 
 
-        ui.timer(interval=0.1, callback=lambda: self.controls["tracking_image"].set_source(f'/video/frame?{time.time()}'))   
+        ui.timer(interval=0.033, callback=lambda: self.controls["tracking_image"].set_source(f'/video/frame?{time.time()}'))   
 
     def setDebugData(self, data):
         try:
