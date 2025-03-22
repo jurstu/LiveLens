@@ -6,7 +6,6 @@ class Camera:
     def __init__(self, camera_id:[int, str], resolution):
         self.camera_id = camera_id
         self.resolution = resolution
-        print(camera_id)
         self.cap = cv2.VideoCapture(camera_id)
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, resolution[0])
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, resolution[1])

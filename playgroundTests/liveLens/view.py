@@ -44,29 +44,28 @@ class View:
     def drawSprite(self, sprite:Sprite, dst:np.ndarray):
         mv = 8
         hh, ww = sprite.image.shape[:2]
-        src = [[mv, mv], [mv, ww-mv], [hh-mv, ww-mv], [hh-mv, mv]]
-
-        src = np.array(src, np.float32)
+        src = np.array([[mv, mv], [mv, ww - mv], [hh - mv, ww - mv], [hh - mv, mv]], dtype=np.float32)
         dst = np.array(dst, np.float32)
-        M = cv2.getPerspectiveTransform(src, dst)
-        warp = cv2.warpPerspective(sprite.image, M, (self.width, self.height))
-        
-        mask = np.zeros((self.height, self.width), dtype=np.uint8)
-        cv2.fillPoly(mask, [dst.astype(np.int32)], 255)
-        
-        cv2.copyTo(warp, mask, self.canvas)
 
-        #mask_inv = cv2.bitwise_not(mask)
-        #warpedSpriteOnly = cv2.bitwise_and(warp, warp, mask=mask)
-        #canvasBg = cv2.bitwise_and(self.canvas, self.canvas, mask=mask_inv)
-        #self.canvas = cv2.add(canvasBg, warpedSpriteOnly)
+        x, y, w, h = cv2.boundingRect(dst)  # Find bounding box of destination quad
+        dst_roi = dst.copy()
+        dst_roi[:, 0] -= x  # Shift points to ROI-relative coordinates
+        dst_roi[:, 1] -= y
+        cv2.rectangle(self.canvas, (x, y), (x+w, y+h), (128, 0, 255), 2)
+
+        M = cv2.getPerspectiveTransform(src, dst_roi)
+        warp = cv2.warpPerspective(sprite.image, M, (w, h))
+        mask = np.zeros((h, w), dtype=np.uint8)
+        cv2.fillPoly(mask, [dst_roi.astype(np.int32)], 255)
+
+        roi = self.canvas[y:y+h, x:x+w]
+        cv2.copyTo(warp, mask, roi)
+
 
 
     def drawWorld(self):
         self.canvas = np.zeros((self.height, self.width, 3), dtype=np.uint8)
         self.canvas[:] = 255
-        
-
         
         points = self.worldStore.pointList
         sprites = self.worldStore.spriteList
@@ -142,7 +141,7 @@ if __name__ == "__main__":
     while True:
         angle += 1
         
-        print(angle, "{:02.2f}".format(angle/(time.time()-tt)))
+        logger.info("{angle}, {:02.2f}".format(angle/(time.time()-tt)))
         position = [-R * np.cos(np.deg2rad(angle)), R * np.sin(np.deg2rad(angle)), 0.3]
         view.setCameraPosAtt(position, 0, 0, angle + 90)
         view.drawWorld()

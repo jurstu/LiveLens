@@ -20,10 +20,21 @@
             "name": "my second texture",
             "type": "sprite",
             "points": [
-                [0.3,  0.1, -0.1],
-                [0.3, -0.1, -0.1],
-                [0.3, -0.1,  0.1],
-                [0.3,  0.1,  0.1]
+                [-0.1, 0.3, -0.1],
+                [ 0.1, 0.3, -0.1],
+                [ 0.1, 0.3,  0.1],
+                [-0.1, 0.3,  0.1]
+            ],
+            "texturePath": "./assets/testImage.png"
+        },
+        {
+            "name": "my second texture",
+            "type": "sprite",
+            "points": [
+                [ 0.1, -0.3, -0.1],
+                [-0.1, -0.3, -0.1],
+                [-0.1, -0.3,  0.1],
+                [ 0.1, -0.3,  0.1]
             ],
             "texturePath": "./assets/testImage.png"
         },
