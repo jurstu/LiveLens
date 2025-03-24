@@ -14,6 +14,7 @@
                 [0.4, -0.1,  0.1],
                 [0.4,  0.1,  0.1]
             ],
+            "visible": false,
             "texturePath": "./assets/aruco.png"
         },
         {
@@ -25,6 +26,7 @@
                 [ 0.1, 0.3,  0.1],
                 [-0.1, 0.3,  0.1]
             ],
+            "visible": false,
             "texturePath": "./assets/testImage.png"
         },
         {
@@ -36,6 +38,7 @@
                 [-0.1, -0.3,  0.1],
                 [ 0.1, -0.3,  0.1]
             ],
+            "visible": false,
             "texturePath": "./assets/testImage.png"
         },
         {

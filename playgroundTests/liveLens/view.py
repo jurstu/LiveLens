@@ -42,6 +42,8 @@ class View:
         cv2.circle(self.canvas, dist, 5, (0, 0, 0))
 
     def drawSprite(self, sprite:Sprite, dst:np.ndarray):
+        if(sprite.visible == False):
+            return
         mv = 8
         hh, ww = sprite.image.shape[:2]
         src = np.array([[mv, mv], [mv, ww - mv], [hh - mv, ww - mv], [hh - mv, mv]], dtype=np.float32)
@@ -51,7 +53,7 @@ class View:
         dst_roi = dst.copy()
         dst_roi[:, 0] -= x  # Shift points to ROI-relative coordinates
         dst_roi[:, 1] -= y
-        cv2.rectangle(self.canvas, (x, y), (x+w, y+h), (128, 0, 255), 2)
+        #cv2.rectangle(self.canvas, (x, y), (x+w, y+h), (128, 0, 255), 2)
 
         M = cv2.getPerspectiveTransform(src, dst_roi)
         warp = cv2.warpPerspective(sprite.image, M, (w, h))
@@ -63,9 +65,10 @@ class View:
 
 
 
-    def drawWorld(self):
-        self.canvas = np.zeros((self.height, self.width, 3), dtype=np.uint8)
-        self.canvas[:] = 255
+    def drawWorld(self, clearCanvas:bool = True):
+        if clearCanvas:
+            self.canvas = np.zeros((self.height, self.width, 3), dtype=np.uint8)
+            self.canvas[:] = 255
         
         points = self.worldStore.pointList
         sprites = self.worldStore.spriteList
@@ -141,17 +144,10 @@ if __name__ == "__main__":
     while True:
         angle += 1
         
-        logger.info("{angle}, {:02.2f}".format(angle/(time.time()-tt)))
+        logger.info("{:02.2f}, {:02.2f}".format(angle, angle/(time.time()-tt)))
         position = [-R * np.cos(np.deg2rad(angle)), R * np.sin(np.deg2rad(angle)), 0.3]
         view.setCameraPosAtt(position, 0, 0, angle + 90)
         view.drawWorld()
         ug.lastImage = view.canvas
-        #cv2.imshow("main view", view.canvas)
-        
-        #if cv2.waitKey(16) & 0xFF == 27:  # Press 'ESC' to exit
-        #    break
-        #time.sleep(0.033)
-        
-        
 
     cv2.destroyAllWindows()

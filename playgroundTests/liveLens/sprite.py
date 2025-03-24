@@ -5,11 +5,12 @@ from liveLens.loggingSetup import getLogger
 logger = getLogger(__name__)
 
 class Sprite:
-    def __init__(self, points: np.ndarray, filePath: str, name: str = "", ):
+    def __init__(self, points: np.ndarray, filePath: str, name: str = "", visible:bool = True):
         self.points = points
         self.filePath = filePath
         self.name = name
         self.center = np.array([0, 0, 0])
+        self.visible = visible
         self.load()
 
     def isSpriteFacingCam(self, cameraPos:np.ndarray = [0, 0, 0]):

@@ -22,7 +22,12 @@ class LiveLens:
 
         self.imu = BNO055()
 
-        self.cam = Camera(2, [640, 480])
+        self.cam = Camera(3, [640, 480])
+
+    def fuse(self):
+        lastImage = self.cam.latest_frame
+        ll.view.canvas = lastImage
+        ll.view.drawWorld(clearCanvas = False)
 
 
 if __name__ == "__main__":
@@ -32,7 +37,7 @@ if __name__ == "__main__":
     ll = LiveLens()
 
     while(1):
-        ll.view.setCameraPosAtt(ll.position, ll.imu.roll, ll.imu.pitch, ll.imu.heading)
-        ll.view.drawWorld()
+        ll.view.setCameraPosAtt(ll.position, -ll.imu.roll, ll.imu.pitch, ll.imu.heading)
+        ll.fuse()
         ug.lastImage = ll.view.canvas
         #time.sleep(0.01)

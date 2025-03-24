@@ -39,8 +39,9 @@ class WorldStore:
             
                 if(objType == "sprite"):
                     points = object["points"]
+                    visible = object["visible"]
                     texturePath = object["texturePath"]
-                    sprite = Sprite(points, texturePath, objName)
+                    sprite = Sprite(points, texturePath, objName, visible)
                     self.spriteList.append(sprite)
                     logger.debug("Loaded a sprite texture from " + texturePath)
 

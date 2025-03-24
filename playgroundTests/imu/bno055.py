@@ -13,7 +13,7 @@ class BNO055:
     CONFIG_MODE = 0x00
     NDOF_MODE = 0x0C
 
-    def __init__(self, i2c_dev:int =5):
+    def __init__(self, i2c_dev:int=5):
         self.bus = SMBus(5)
         self.write_register(BNO055.OPR_MODE_ADDR, BNO055.CONFIG_MODE)
         self.write_register(BNO055.OPR_MODE_ADDR, BNO055.NDOF_MODE)
@@ -37,7 +37,8 @@ class BNO055:
         logger.debug("starting BNO055")
         while True:
             self.read_euler()
-            #logger.debug(f"Heading: {self.heading:.2f}°, Roll: {self.roll:.2f}°, Pitch: {self.pitch:.2f}°")
+            if __name__ == "__main__":
+                logger.debug(f"Heading: {self.heading:.2f}°, Roll: {self.roll:.2f}°, Pitch: {self.pitch:.2f}°")
             time.sleep(0.01)
 
 
