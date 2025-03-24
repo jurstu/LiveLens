@@ -22,7 +22,7 @@ class LiveLens:
 
         self.imu = BNO055()
 
-        self.cam = Camera(3, [640, 480])
+        self.cam = Camera(3, [1280, 720])
 
     def fuse(self):
         lastImage = self.cam.latest_frame
