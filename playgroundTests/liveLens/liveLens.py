@@ -1,7 +1,7 @@
 import numpy as np
 import time
 
-from imu.bno055 import BNO055
+from MSP import MSP
 from liveLens.view import View
 from liveLens.camera import Camera
 from liveLens.loggingSetup import getLogger
@@ -20,7 +20,7 @@ class LiveLens:
         self.view.setCameraPosAtt(self.position, 0, 0, 0)
         self.view.drawWorld()
 
-        self.imu = BNO055()
+        imu = MSP("/dev/ttyACM0")
 
         self.cam = Camera(3, [1280, 720])
 

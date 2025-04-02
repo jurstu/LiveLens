@@ -96,7 +96,9 @@ class View:
         lines = self.worldStore.lineList
         spheres = self.worldStore.sphereList
 
+        # the original one
         cp = [self.cameraPos[1], -self.cameraPos[2], -self.cameraPos[0]]
+        # TODO this needs to get fixed
         combinedList = sorted(points + sprites + lines + spheres, key=lambda obj: -obj.getDistNorm(cp))
         
 
@@ -180,7 +182,7 @@ if __name__ == "__main__":
     angle = 0
     tt = time.time()
     while True:
-        angle += 2.5
+        angle += 0.5
         
         #logger.info("{:02.2f}, {:02.2f}".format(angle, angle/(time.time()-tt)))
         R = 1 + 0.3 * np.sin(np.deg2rad(3*angle))

@@ -16,7 +16,6 @@ class MSP:
         self.roll = TimedValue(0)
         self.pitch = TimedValue(0)
         self.yaw = TimedValue(0)
-        
         self.ser = SerialGuard(self.dataCallback, self.port, self.baudrate, True)
 
     def tryReadingPacket(self, ss):
