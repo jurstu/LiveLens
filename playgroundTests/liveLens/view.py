@@ -50,7 +50,6 @@ class View:
         r = int((rx + ry) / 2)
         #r = int(np.sqrt((p[0] - pr[0])**2 + (p[1] - pr[1])**2))
         #r = int(np.linalg.norm([p[0] - pr[0], p[1] - pr[1]]))
-
         cv2.circle(self.canvas, p, r, c, thickness=-1)
 
     def drawPoint(self, point:ThreeDeePoint, dist:np.ndarray):
@@ -122,6 +121,8 @@ class View:
 
         rawPointsList = np.array(rawPointsList)
         pp, z = self.pinholeCamera.getProjections(rawPointsList, self.roll, self.pitch, self.yaw, self.cameraPos)
+        # filter out floats from outer space
+        # TODO
         pp = pp.astype(np.int32)
 
         counter = 0
@@ -147,8 +148,10 @@ class View:
                     counter+=2
 
                 case Sphere():
+
                     dist = pp[counter:counter+1]
-                    self.drawSphere(object, dist, z[counter])
+                    if(z[counter] > 0.01):
+                        self.drawSphere(object, dist, z[counter])
                     counter+=1
 
                 case _:

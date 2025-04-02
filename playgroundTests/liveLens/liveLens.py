@@ -16,13 +16,12 @@ class LiveLens:
         self.view = View()
         self.view.worldStore.generateFloor(np.array([0, 0, 0]), 3, 0.05)
         R = 1
-        self.position = [-R, 0, 0.1]
+        self.position = [-1, 0, 0.2]
+        
         self.view.setCameraPosAtt(self.position, 0, 0, 0)
         self.view.drawWorld()
-
-        imu = MSP("/dev/ttyACM0")
-
-        self.cam = Camera(3, [1280, 720])
+        self.imu = MSP("/dev/ttyACM0")
+        self.cam = Camera(0, [1280, 720])
 
     def fuse(self):
         lastImage = self.cam.latest_frame
@@ -37,7 +36,9 @@ if __name__ == "__main__":
     ll = LiveLens()
 
     while(1):
-        ll.view.setCameraPosAtt(ll.position, -ll.imu.roll, ll.imu.pitch, ll.imu.heading)
+
+        #ll.view.setCameraPosAtt(ll.position, -ll.imu.roll.value, ll.imu.pitch.value, ll.imu.yaw.value)
+        #logger.info(ll.view.cameraPos)
         ll.fuse()
         ug.lastImage = ll.view.canvas
-        #time.sleep(0.01)
+        time.sleep(0.01)

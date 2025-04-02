@@ -1,5 +1,5 @@
 import struct
-import time
+import time, threading
 from MSP.serialGuard import SerialGuard
 from MSP.value import TimedValue
 
@@ -17,6 +17,13 @@ class MSP:
         self.pitch = TimedValue(0)
         self.yaw = TimedValue(0)
         self.ser = SerialGuard(self.dataCallback, self.port, self.baudrate, True)
+        self.t = threading.Thread(target=self.run, daemon=True)
+        self.t.start()
+
+    def run(self):
+        while(1):
+            time.sleep(0.1)
+            self.request_attitude()
 
     def tryReadingPacket(self, ss):
         #print("packet starts with", ss)
@@ -112,7 +119,7 @@ if __name__ == "__main__":
 
     # Get angles
     while(1):
-        fc.request_attitude()
+        #fc.request_attitude()
         time.sleep(0.01)
         print(fc.yaw, fc.pitch, fc.roll)
 
