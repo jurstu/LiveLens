@@ -10,11 +10,14 @@ class Line:
         self.name = name
 
     def getDistNorm(self, pos:np.ndarray = [0, 0, 0]):
-        dx = pos[0] - self.x
-        dy = pos[1] - self.y
-        dz = pos[2] - self.z
+
+        centerPoint = (self.p1 + self.p2)/2
+
+        dx = pos[0] - centerPoint.x
+        dy = pos[1] - centerPoint.y
+        dz = pos[2] - centerPoint.z
         # no need to calc actual distance, square is fine for comparison
         return dx**2 + dy**2 + dz**2
 
     def __repr__(self):
-        return f"x:{self.x}, y:{self.y}, z:{self.z}"
+        return f"line: p1: {self.p1}, p2: {self.p2}"
