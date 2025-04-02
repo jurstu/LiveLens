@@ -92,42 +92,58 @@
         {
             "name": "pointA",
             "type": "point",
-            "position": [0, 0, 0.2]
+            "position": [0, 0, 0.2],
+            "color": [255, 0, 0],
+            "size": 0.01
         },
         {
             "name": "pointB", 
             "type": "point",
-            "position": [0.1, 0, 0.2]
+            "position": [0.1, 0, 0.2],
+            "color": [255, 0, 0],
+            "size": 0.01
         },
         {
             "name": "pointC", 
             "type": "point",
-            "position": [0.1, 0.1, 0.2]
+            "position": [0.1, 0.1, 0.2],
+            "color": [255, 0, 0],
+            "size": 0.01
         },
         {
             "name": "pointD", 
             "type": "point",
-            "position": [0, 0.1, 0.2]
+            "position": [0, 0.1, 0.2],
+            "color": [255, 0, 0],
+            "size": 0.01
         },
         {
             "name": "pointE", 
             "type": "point",
-            "position": [0, 0, 0.3]
+            "position": [0, 0, 0.3],
+            "color": [255, 0, 0],
+            "size": 0.01
         },
         {
             "name": "pointF", 
             "type": "point",
-            "position": [0.1, 0, 0.3]
+            "position": [0.1, 0, 0.3],
+            "color": [255, 0, 0],
+            "size": 0.01
         },
         {
             "name": "pointG", 
             "type": "point",
-            "position": [0.1, 0.1, 0.3]
+            "position": [0.1, 0.1, 0.3],
+            "color": [255, 0, 0],
+            "size": 0.01
         },
         {
             "name": "pointH", 
             "type": "point",
-            "position": [0, 0.1, 0.3]
+            "position": [0, 0.1, 0.3],
+            "color": [255, 0, 0],
+            "size": 0.01
         }
     ]
 }
