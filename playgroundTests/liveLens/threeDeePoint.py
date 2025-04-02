@@ -10,6 +10,19 @@ class ThreeDeePoint:
         self.z = z
         self.name = name
 
+    def __add__(self, other):
+        return ThreeDeePoint(self.x + other.x, 
+                             self.y + other.y, 
+                             self.z + other.z, 
+                             "sum of " + self.name + " and " + other.name)
+
+    def __truediv__(self, other):
+        if(type(other) == int or type(other) == float):
+            return ThreeDeePoint(self.x/other, 
+                                 self.y/other, 
+                                 self.z/other, 
+                                 self.name + " divided by " + str(other))
+
     def getDistNorm(self, pos:np.ndarray = [0, 0, 0]):
         dx = pos[0] - self.x
         dy = pos[1] - self.y

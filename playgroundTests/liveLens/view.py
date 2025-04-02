@@ -144,10 +144,11 @@ if __name__ == "__main__":
     while True:
         angle += 1
         
-        logger.info("{:02.2f}, {:02.2f}".format(angle, angle/(time.time()-tt)))
+        #logger.info("{:02.2f}, {:02.2f}".format(angle, angle/(time.time()-tt)))
         position = [-R * np.cos(np.deg2rad(angle)), R * np.sin(np.deg2rad(angle)), 0.3]
         view.setCameraPosAtt(position, 0, 0, angle + 90)
         view.drawWorld()
         ug.lastImage = view.canvas
+        time.sleep(0.033)
 
     cv2.destroyAllWindows()
