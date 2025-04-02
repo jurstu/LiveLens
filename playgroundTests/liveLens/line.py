@@ -1,12 +1,11 @@
 import numpy as np
 from liveLens.threeDeePoint import ThreeDeePoint
 
-
-
 class Line:
-    def __init__(self, p1: ThreeDeePoint, p2: ThreeDeePoint, name: str = ""):
+    def __init__(self, p1: ThreeDeePoint, p2: ThreeDeePoint, color:np.ndarray=[0, 0, 0], name: str = ""):
         self.p1 = p1
         self.p2 = p2
+        self.color = color
         self.name = name
 
     def getDistNorm(self, pos:np.ndarray = [0, 0, 0]):

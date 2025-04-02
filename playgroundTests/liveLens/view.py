@@ -7,6 +7,7 @@ from liveLens.worldStore import WorldStore
 from liveLens.loggingSetup import getLogger
 from liveLens.threeDeePoint import ThreeDeePoint
 from liveLens.sprite import Sprite
+from liveLens.line import Line
 
 
 
@@ -41,6 +42,11 @@ class View:
         #logger.debug(dist)
         cv2.circle(self.canvas, dist, 5, (0, 0, 0))
 
+    def drawLine(self, line:Line, dist:np.ndarray):
+        #logger.debug(dist)
+        c = line.color
+        cv2.line(self.canvas, dist[0], dist[1], [c[0], c[1], c[2]], 2)
+
     def drawSprite(self, sprite:Sprite, dst:np.ndarray):
         if(sprite.visible == False):
             return
@@ -72,8 +78,10 @@ class View:
         
         points = self.worldStore.pointList
         sprites = self.worldStore.spriteList
+        lines = self.worldStore.lineList
+
         cp = [self.cameraPos[1], -self.cameraPos[2], -self.cameraPos[0]]
-        combinedList = sorted(points + sprites, key=lambda obj: -obj.getDistNorm(cp))
+        combinedList = sorted(points + sprites + lines, key=lambda obj: -obj.getDistNorm(cp))
         
 
         rawPointsList = []
@@ -86,6 +94,9 @@ class View:
                         rawPointsList.append([object.points[i][0], object.points[i][1], object.points[i][2]])
                 case ThreeDeePoint():
                     rawPointsList.append([object.x, object.y, object.z])
+                case Line():
+                    rawPointsList.append([object.p1.x, object.p1.y, object.p1.z])
+                    rawPointsList.append([object.p2.x, object.p2.y, object.p2.z])
                 case _:
                     logger.error("object type not handled by renderer")
 
@@ -110,7 +121,11 @@ class View:
                         self.drawPoint(object, dist)
                     counter+=1
                     
-                    
+                case Line():
+                    dist = pp[counter:counter+2]
+                    self.drawLine(object, dist)
+                    counter+=2
+
                 case _:
                     logger.error("object type not handled by renderer")
                     

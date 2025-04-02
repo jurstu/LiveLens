@@ -6,6 +6,54 @@
     "objects":
     [
         {
+            "name": "z", 
+            "type": "line", 
+            "p1": [0, 0, 0],
+            "p2": [0, 0, 0.2],
+            "color": [0, 0, 255],
+            "visible": true
+        },
+        {
+            "name": "y", 
+            "type": "line", 
+            "p1": [0, 0, 0],
+            "p2": [0, 0.2, 0],
+            "color": [0, 255, 0],
+            "visible": true
+        },
+        {
+            "name": "x", 
+            "type": "line", 
+            "p1": [0, 0, 0],
+            "p2": [0.2, 0, 0],
+            "color": [255, 0, 0],
+            "visible": true
+        },
+        {
+            "name": "line", 
+            "type": "line", 
+            "p1": [0, 0, 0],
+            "p2": [0.2, 0.2, 0.2],
+            "color": [0, 0, 0],
+            "visible": true
+        },
+        {
+            "name": "line2", 
+            "type": "line", 
+            "p1": [0, 0, 0],
+            "p2": [-0.2, 0.2, 0.2],
+            "color": [0, 0, 0],
+            "visible": true
+        },
+        {
+            "name": "line", 
+            "type": "line", 
+            "p1": [ 0.2, 0.2, 0.2],
+            "p2": [-0.2, 0.2, 0.2],
+            "color": [0, 0, 0],
+            "visible": true
+        },
+        {
             "name": "my first texture",
             "type": "sprite",
             "points": [

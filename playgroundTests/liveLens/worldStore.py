@@ -4,6 +4,7 @@ import logging
 from liveLens.loggingSetup import getLogger
 from liveLens.threeDeePoint import ThreeDeePoint
 from liveLens.sprite import Sprite
+from liveLens.line import Line
 
 logger = getLogger(__name__)
 
@@ -27,6 +28,7 @@ class WorldStore:
             self.objects = self.world["objects"]
             self.pointList = []
             self.spriteList = []
+            self.lineList = []
             for i, object in enumerate(self.objects):
                 objType = object["type"]
                 objName = object["name"]
@@ -44,6 +46,24 @@ class WorldStore:
                     sprite = Sprite(points, texturePath, objName, visible)
                     self.spriteList.append(sprite)
                     logger.debug("Loaded a sprite texture from " + texturePath)
+
+                if(objType == "line"):
+                    p1 = object["p1"]
+                    p2 = object["p2"]
+                    p1 = ThreeDeePoint(p1[0], 
+                                       p1[1], 
+                                       p1[2], 
+                                       "p1")
+                    p2 = ThreeDeePoint(p2[0], 
+                                       p2[1], 
+                                       p2[2], 
+                                       "p2")
+                    
+                    
+                    visible = object["visible"]
+                    color = object["color"]
+                    line = Line(p1, p2, color, objName)
+                    self.lineList.append(line)
 
 
         except Exception as e:
