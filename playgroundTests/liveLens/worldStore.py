@@ -5,6 +5,7 @@ from liveLens.loggingSetup import getLogger
 from liveLens.threeDeePoint import ThreeDeePoint
 from liveLens.sprite import Sprite
 from liveLens.line import Line
+from liveLens.sphere import Sphere
 
 logger = getLogger(__name__)
 
@@ -29,6 +30,7 @@ class WorldStore:
             self.pointList = []
             self.spriteList = []
             self.lineList = []
+            self.sphereList = []
             for i, object in enumerate(self.objects):
                 objType = object["type"]
                 objName = object["name"]
@@ -58,13 +60,22 @@ class WorldStore:
                                        p2[1], 
                                        p2[2], 
                                        "p2")
-                    
-                    
                     visible = object["visible"]
                     color = object["color"]
                     line = Line(p1, p2, color, objName)
                     self.lineList.append(line)
 
+                if(objType == "sphere"):
+                    p = object["p"]
+                    p  = ThreeDeePoint(p[0], 
+                                       p[1], 
+                                       p[2], 
+                                       "p")
+                    r = object["r"]
+                    visible = object["visible"]
+                    color = object["color"]
+                    sphere = Sphere(p.x, p.y, p.z, r, color, objName)
+                    self.sphereList.append(sphere)
 
         except Exception as e:
             logger.error("Could not load the whole world")

@@ -8,7 +8,7 @@ from liveLens.loggingSetup import getLogger
 from liveLens.threeDeePoint import ThreeDeePoint
 from liveLens.sprite import Sprite
 from liveLens.line import Line
-
+from liveLens.sphere import Sphere
 
 
 
@@ -37,6 +37,21 @@ class View:
         self.pitch = pitch
         self.yaw = yaw
 
+
+    def drawSphere(self, sphere:Sphere, dist:np.ndarray, z: float):
+        #logger.debug(dist)
+        c = sphere.color
+        p = dist[0]
+        fx = self.pinholeCamera.K[0, 0]
+        fy = self.pinholeCamera.K[1, 1]
+        r = sphere.r
+        rx = fx * r / z
+        ry = fy * r / z
+        r = int((rx + ry) / 2)
+        #r = int(np.sqrt((p[0] - pr[0])**2 + (p[1] - pr[1])**2))
+        #r = int(np.linalg.norm([p[0] - pr[0], p[1] - pr[1]]))
+
+        cv2.circle(self.canvas, p, r, c, thickness=-1)
 
     def drawPoint(self, point:ThreeDeePoint, dist:np.ndarray):
         #logger.debug(dist)
@@ -79,9 +94,10 @@ class View:
         points = self.worldStore.pointList
         sprites = self.worldStore.spriteList
         lines = self.worldStore.lineList
+        spheres = self.worldStore.sphereList
 
         cp = [self.cameraPos[1], -self.cameraPos[2], -self.cameraPos[0]]
-        combinedList = sorted(points + sprites + lines, key=lambda obj: -obj.getDistNorm(cp))
+        combinedList = sorted(points + sprites + lines + spheres, key=lambda obj: -obj.getDistNorm(cp))
         
 
         rawPointsList = []
@@ -97,6 +113,8 @@ class View:
                 case Line():
                     rawPointsList.append([object.p1.x, object.p1.y, object.p1.z])
                     rawPointsList.append([object.p2.x, object.p2.y, object.p2.z])
+                case Sphere():
+                    rawPointsList.append([object.x, object.y, object.z])
                 case _:
                     logger.error("object type not handled by renderer")
 
@@ -125,6 +143,11 @@ class View:
                     dist = pp[counter:counter+2]
                     self.drawLine(object, dist)
                     counter+=2
+
+                case Sphere():
+                    dist = pp[counter:counter+1]
+                    self.drawSphere(object, dist, z[counter])
+                    counter+=1
 
                 case _:
                     logger.error("object type not handled by renderer")
@@ -157,10 +180,12 @@ if __name__ == "__main__":
     angle = 0
     tt = time.time()
     while True:
-        angle += 1
+        angle += 2.5
         
         #logger.info("{:02.2f}, {:02.2f}".format(angle, angle/(time.time()-tt)))
+        R = 1 + 0.3 * np.sin(np.deg2rad(3*angle))
         position = [-R * np.cos(np.deg2rad(angle)), R * np.sin(np.deg2rad(angle)), 0.3]
+        
         view.setCameraPosAtt(position, 0, 0, angle + 90)
         view.drawWorld()
         ug.lastImage = view.canvas
