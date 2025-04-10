@@ -123,7 +123,7 @@ class View:
         pp, z = self.pinholeCamera.getProjections(rawPointsList, self.roll, self.pitch, self.yaw, self.cameraPos)
         # filter out floats from outer space
         # TODO
-        pp = pp.astype(np.int32)
+        pp = pp.astype(int)
 
         counter = 0
         for object in combinedList:
@@ -144,7 +144,8 @@ class View:
                     
                 case Line():
                     dist = pp[counter:counter+2]
-                    self.drawLine(object, dist)
+                    if(z[counter] > 0 and z[counter+1] > 0):
+                        self.drawLine(object, dist)
                     counter+=2
 
                 case Sphere():
@@ -188,12 +189,19 @@ if __name__ == "__main__":
         angle += 0.5
         
         #logger.info("{:02.2f}, {:02.2f}".format(angle, angle/(time.time()-tt)))
-        R = 1 + 0.3 * np.sin(np.deg2rad(3*angle))
-        position = [-R * np.cos(np.deg2rad(angle)), R * np.sin(np.deg2rad(angle)), 0.3]
+        R = 1 + 0.0 * np.sin(np.deg2rad(3*angle))
+        position = [0 - R * np.cos(np.deg2rad(angle)), R * np.sin(np.deg2rad(angle)), 0.3]
         
-        view.setCameraPosAtt(position, 0, 0, angle + 90)
-        view.drawWorld()
-        ug.lastImage = view.canvas
-        time.sleep(0.033)
+        view.setCameraPosAtt(position, 0, 0, 1*angle + 90)
+        try:
+            view.drawWorld()
+            ug.lastImage = view.canvas
+            time.sleep(0.033)
+        except KeyboardInterrupt:
+            break
+        except :
+            logger.warning("couldn't draw the world")
+        
+        
 
     cv2.destroyAllWindows()
