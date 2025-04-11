@@ -39,7 +39,7 @@ if __name__ == "__main__":
 
     frames = []
     while angle < 360:
-        angle += 5
+        angle += 1
         print(angle)
         #cv2.imshow("main view", view.canvas)
         #if cv2.waitKey(33) & 0xFF == 27:  # Press 'ESC' to exit
@@ -47,7 +47,7 @@ if __name__ == "__main__":
         R = 1 + 0.3 * np.sin(np.deg2rad(1*angle))
         position = [-R * np.cos(np.deg2rad(angle)), R * np.sin(np.deg2rad(angle)), 0.3]
         #position = [-R * np.cos(np.deg2rad(angle)), R * np.sin(np.deg2rad(angle)), 0.3]
-        view.setCameraPosAtt(position, 0, 0, angle + 90)
+        view.setCameraPosAtt(position, 3*np.sin(angle/36), 0, angle + 90)
         view.drawWorld()
         frames.append(cv2.cvtColor(view.canvas, cv2.COLOR_BGR2RGB))
         

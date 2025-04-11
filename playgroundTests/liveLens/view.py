@@ -6,7 +6,7 @@ import colorsys
 from liveLens.pinholeCamera import PinholeCamera, getExampleK
 from liveLens.worldStore import WorldStore
 from liveLens.loggingSetup import getLogger
-from liveLens.threeDeePoint import ThreeDeePoint
+from liveLens.threeDeePoint import ThreeDeePoint, HorizonFlatText
 from liveLens.sprite import Sprite
 from liveLens.line import Line
 from liveLens.sphere import Sphere
@@ -62,6 +62,22 @@ class View:
         #logger.debug(dist)
         cv2.circle(self.canvas, dist, 5, (0, 0, 0))
 
+    def drawHorizonFlatText(self, text:HorizonFlatText, dist:np.ndarray):
+        #logger.debug(dist)
+        font = cv2.FONT_HERSHEY_DUPLEX
+        size = 1
+
+        textsize = cv2.getTextSize(text.text, font, 1, 2)[0]
+        textX = int(dist[0] - (textsize[0] / 2))
+        textY = int(dist[1] + (textsize[1] / 2)) + text.yOffset
+        
+        cv2.putText(self.canvas, text.text, (textX, textY), font, 1, (0, 0, 0), 6)
+        cv2.putText(self.canvas, text.text, (textX, textY), font, 1, text.color, 2)
+        
+        #cv2.circle(self.canvas, dist, 5, (0, 0, 0))
+
+
+
     def drawLine(self, line:Line, dist:np.ndarray):
         #logger.debug(dist)
         c = line.color
@@ -92,27 +108,58 @@ class View:
 
     def generateHorizon(self):
         self.worldStore.horizonList = []
+        self.worldStore.horizonFlatText = []
 
         center = self.cameraPos
         R = 5
-        segments = 20
+        segments = 24
 
         for i in range(segments):
             a0 = i     * 360/segments
             a1 = (i+1) * 360/segments
 
-            a0 = np.deg2rad(a0)
-            a1 = np.deg2rad(a1)
+            a0r = np.deg2rad(a0)
+            a1r = np.deg2rad(a1)
 
             c = center
-            p0 = [c[0] + R*np.cos(a0), c[1] + R*np.sin(a0), c[2]]
-            p1 = [c[0] + R*np.cos(a1), c[1] + R*np.sin(a1), c[2]]
+            p0 = [c[0] + R*np.cos(a0r), c[1] + R*np.sin(a0r), c[2]]
+            p1 = [c[0] + R*np.cos(a1r), c[1] + R*np.sin(a1r), c[2]]
 
             self.worldStore.horizonList.append(Line(
                 ThreeDeePoint(p0[0], p0[1], p0[2]),
                 ThreeDeePoint(p1[0], p1[1], p1[2]),
-                    hsv2rgb(i/segments, 1, 1)
+                    [0, 255, 0] #hsv2rgb(i/segments, 1, 1)
                 ))
+
+            if(a0 % 30 == 0):
+                self.worldStore.horizonFlatText.append(
+                    HorizonFlatText(p0[0], p0[1], p0[2] + 0.05, [0, 255, 0], str(int(360 - a0)), "", yOffset=-20)
+                )
+                self.worldStore.horizonList.append(Line(
+                ThreeDeePoint(p0[0], p0[1], p0[2]-0.1),
+                ThreeDeePoint(p0[0], p0[1], p0[2]+0.1),
+                    [0, 0, 0] #hsv2rgb(i/segments, 1, 1)
+                ))
+
+            
+            if a0 == 0 or a0 == 360:
+                self.worldStore.horizonFlatText.append(
+                    HorizonFlatText(p0[0], p0[1], p0[2], [0, 255, 0], "N", "", yOffset=30)
+                )
+            if a0 == 90:
+                self.worldStore.horizonFlatText.append(
+                    HorizonFlatText(p0[0], p0[1], p0[2], [0, 255, 0], "E", "", yOffset=30)
+                )
+            if a0 == 180:
+                self.worldStore.horizonFlatText.append(
+                    HorizonFlatText(p0[0], p0[1], p0[2], [0, 255, 0], "S", "", yOffset=30)
+                )
+            if a0 == 270:
+                self.worldStore.horizonFlatText.append(
+                    HorizonFlatText(p0[0], p0[1], p0[2], [0, 255, 0], "W", "", yOffset=30)
+                )
+            
+            
 
 
 
@@ -129,11 +176,12 @@ class View:
         lines = self.worldStore.lineList
         spheres = self.worldStore.sphereList
         horizon = self.worldStore.horizonList
+        horizonFlatText = self.worldStore.horizonFlatText
 
         # the original one
         cp = [self.cameraPos[1], -self.cameraPos[2], -self.cameraPos[0]]
         # TODO this needs to get fixed
-        combinedList = sorted(points + sprites + lines + spheres + horizon, key=lambda obj: -obj.getDistNorm(cp))
+        combinedList = sorted(points + sprites + lines + spheres + horizon + horizonFlatText, key=lambda obj: -obj.getDistNorm(cp))
         
 
         rawPointsList = []
@@ -144,7 +192,7 @@ class View:
                         continue
                     for i in range(4):
                         rawPointsList.append([object.points[i][0], object.points[i][1], object.points[i][2]])
-                case ThreeDeePoint():
+                case ThreeDeePoint() | HorizonFlatText():
                     rawPointsList.append([object.x, object.y, object.z])
                 case Line():
                     rawPointsList.append([object.p1.x, object.p1.y, object.p1.z])
@@ -177,6 +225,12 @@ class View:
                         self.drawPoint(object, dist)
                     counter+=1
                     
+                case HorizonFlatText():
+                    dist = pp[counter]
+                    if(z[counter] > 0):
+                        self.drawHorizonFlatText(object, dist)
+                    counter+=1
+
                 case Line():
                     dist = pp[counter:counter+2]
                     if(z[counter] > 0 and z[counter+1] > 0):
@@ -234,8 +288,8 @@ if __name__ == "__main__":
             time.sleep(0.033)
         except KeyboardInterrupt:
             break
-        except :
-            logger.warning("couldn't draw the world")
+        except Exception as e:
+            logger.warning("couldn't draw the world: " + str(e))
         
         
 

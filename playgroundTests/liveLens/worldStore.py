@@ -33,6 +33,7 @@ class WorldStore:
             self.sphereList = []
 
             self.horizonList = []
+            self.horizonFlatText = []
 
             for i, object in enumerate(self.objects):
                 objType = object["type"]
