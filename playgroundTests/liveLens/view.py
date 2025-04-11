@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import time
+import colorsys
 
 from liveLens.pinholeCamera import PinholeCamera, getExampleK
 from liveLens.worldStore import WorldStore
@@ -13,6 +14,11 @@ from liveLens.sphere import Sphere
 
 
 logger = getLogger(__name__)
+
+
+def hsv2rgb(h,s,v):
+    return tuple(round(i * 255) for i in colorsys.hsv_to_rgb(h,s,v))
+
 
 class View:
     def __init__(self, width:int = 1280, height:int = 720, bgColor:list[int] = (255, 255, 255)):
@@ -84,21 +90,50 @@ class View:
         cv2.copyTo(warp, mask, roi)
 
 
+    def generateHorizon(self):
+        self.worldStore.horizonList = []
+
+        center = self.cameraPos
+        R = 5
+        segments = 20
+
+        for i in range(segments):
+            a0 = i     * 360/segments
+            a1 = (i+1) * 360/segments
+
+            a0 = np.deg2rad(a0)
+            a1 = np.deg2rad(a1)
+
+            c = center
+            p0 = [c[0] + R*np.cos(a0), c[1] + R*np.sin(a0), c[2]]
+            p1 = [c[0] + R*np.cos(a1), c[1] + R*np.sin(a1), c[2]]
+
+            self.worldStore.horizonList.append(Line(
+                ThreeDeePoint(p0[0], p0[1], p0[2]),
+                ThreeDeePoint(p1[0], p1[1], p1[2]),
+                    hsv2rgb(i/segments, 1, 1)
+                ))
+
+
+
 
     def drawWorld(self, clearCanvas:bool = True):
         if clearCanvas:
             self.canvas = np.zeros((self.height, self.width, 3), dtype=np.uint8)
             self.canvas[:] = 255
-        
+
+        self.generateHorizon()
+
         points = self.worldStore.pointList
         sprites = self.worldStore.spriteList
         lines = self.worldStore.lineList
         spheres = self.worldStore.sphereList
+        horizon = self.worldStore.horizonList
 
         # the original one
         cp = [self.cameraPos[1], -self.cameraPos[2], -self.cameraPos[0]]
         # TODO this needs to get fixed
-        combinedList = sorted(points + sprites + lines + spheres, key=lambda obj: -obj.getDistNorm(cp))
+        combinedList = sorted(points + sprites + lines + spheres + horizon, key=lambda obj: -obj.getDistNorm(cp))
         
 
         rawPointsList = []

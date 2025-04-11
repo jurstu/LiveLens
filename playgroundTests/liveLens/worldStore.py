@@ -31,6 +31,9 @@ class WorldStore:
             self.spriteList = []
             self.lineList = []
             self.sphereList = []
+
+            self.horizonList = []
+
             for i, object in enumerate(self.objects):
                 objType = object["type"]
                 objName = object["name"]
