@@ -42,8 +42,8 @@ def ecef_to_enu(ecef, ref_lat, ref_lon, ref_alt):
 
 
 if __name__ == "__main__":
-    lat1, lon1 = 52.201361, 21.038073
-    lat2, lon2 = 52.201860, 21.038023
+    lat1, lon1 = 52.149306, 20.981002
+    lat2, lon2 = 52.178684, 20.955339
 
     ecef2 = wgs84_to_ecef(lat2, lon2, 0)
     enu1to2 = ecef_to_enu(ecef2, lat1, lon1, 0)
