@@ -2,42 +2,54 @@ import numpy as np
 
 
 
-def wgs84_to_ecef(lat: float, lon: float, alt: float):
-    a = 6378137.0  # semi-major axis (meters)
-    e2 = 6.69437999014e-3  # eccentricity squared
-
-    lat = np.radians(lat)
-    lon = np.radians(lon)
-
-    N = a / np.sqrt(1 - e2 * np.sin(lat)**2)
-
-    x = (N + alt) * np.cos(lat) * np.cos(lon)
-    y = (N + alt) * np.cos(lat) * np.sin(lon)
-    z = ((1 - e2) * N + alt) * np.sin(lat)
-    return np.array([x, y, z])
 
 
-def calc_ecef_dist(pos1, pos2):
-    return np.sqrt((pos1[0] - pos2[0])**2 + (pos1[1] - pos2[1])**2 + (pos1[2] - pos2[2])**2)
+class PositionMonitor:
+    def __init__(self):
+        self.lat = 0
+        self.lon = 0
+        self.alt = 0
+        self.isPosValid = 0
+
+
+    def setCameraPosition(self, lat:float, lon:float, alt:float):
+        self.isPosValid = 1
+        self.lat = lat
+        self.lon = lon
+        self.alt = alt
+        latr = np.radians(self.lat)
+        lonr = np.radians(self.lon)
+        # saving rotation matrix for all future transformation, since it's modified only during 
+        # setting of reference position (lat, lon, alt)
+        self.R = np.array([
+            [-np.sin(lonr),             np.cos(lonr),              0],
+            [-np.sin(latr)*np.cos(lonr), -np.sin(latr)*np.sin(lonr), np.cos(latr)],
+            [np.cos(latr)*np.cos(lonr),  np.cos(latr)*np.sin(lonr),  np.sin(latr)]
+        ]) 
+        self.ref_ecef = self.wgs84ToEcef(lat, lon, alt)
+
+
+    def wgs84ToEcef(self, lat:float, lon:float, alt:float):
+        a = 6378137.0  # semi-major axis (meters)
+        e2 = 6.69437999014e-3  # eccentricity squared
+
+        latr = np.radians(lat)
+        lonr = np.radians(lon)
+
+        N = a / np.sqrt(1 - e2 * np.sin(latr)**2)
+
+        x = (N + alt) * np.cos(latr) * np.cos(lonr)
+        y = (N + alt) * np.cos(latr) * np.sin(lonr)
+        z = ((1 - e2) * N + alt) * np.sin(latr)
+        return np.array([x, y, z])
+
+    def wgs84ToEnuFromCamera(self, lat:float, lon:float, alt:float):
+        ecef = self.wgs84ToEcef(lat, lon, alt)
+        dx = ecef - self.ref_ecef
+        return self.R @ dx
 
 
 
-
-def ecef_to_enu(ecef, ref_lat, ref_lon, ref_alt):
-    ref_ecef = wgs84_to_ecef(ref_lat, ref_lon, ref_alt)
-
-    lat = np.radians(ref_lat)
-    lon = np.radians(ref_lon)
-
-    dx = ecef - ref_ecef
-
-    R = np.array([
-        [-np.sin(lon),             np.cos(lon),              0],
-        [-np.sin(lat)*np.cos(lon), -np.sin(lat)*np.sin(lon), np.cos(lat)],
-        [np.cos(lat)*np.cos(lon),  np.cos(lat)*np.sin(lon),  np.sin(lat)]
-    ])
-    enu = R @ dx
-    return enu
 
 
 
@@ -45,22 +57,9 @@ if __name__ == "__main__":
     lat1, lon1 = 52.149306, 20.981002
     lat2, lon2 = 52.178684, 20.955339
 
-    ecef2 = wgs84_to_ecef(lat2, lon2, 0)
-    enu1to2 = ecef_to_enu(ecef2, lat1, lon1, 0)
-
-    print(enu1to2)
-
+    pm = PositionMonitor()
+    pm.setCameraPosition(lat1, lon1, 0)
+    enuEndOfRunway = pm.wgs84ToEnuFromCamera(lat2, lon2, 0)
+    print(enuEndOfRunway)
 
     exit()
-
-    pos1 = wgs84_to_ecef(lat1, lon1, 0)
-    pos2 = wgs84_to_ecef(lat2, lon2, 0)
-    
-
-    print(pos1)
-    print(pos2)
-
-    dist = calc_ecef_dist(pos1, pos2)
-    print(dist)
-
-
