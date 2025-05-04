@@ -12,6 +12,7 @@ class PositionMonitor:
         self.isPosValid = 0
 
 
+    # in the future this abstraction layer could be used to apply Kalmann filtering
     def setCameraPosition(self, lat:float, lon:float, alt:float):
         self.isPosValid = 1
         self.lat = lat
