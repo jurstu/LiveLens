@@ -2,7 +2,7 @@ from smbus2 import SMBus
 import time
 import struct
 from threading import Thread
-from imu.loggingSetup import getLogger
+from loggingSetup import getLogger
 logger = getLogger(__name__)
 
 class BNO055:

@@ -1,7 +1,7 @@
 import numpy as np
 import json as js
 import logging
-from liveLens.loggingSetup import getLogger
+from loggingSetup import getLogger
 from liveLens.threeDeePoint import ThreeDeePoint
 from liveLens.sprite import Sprite
 from liveLens.line import Line

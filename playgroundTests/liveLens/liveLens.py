@@ -4,7 +4,7 @@ import time
 from MSP import MSP
 from liveLens.view import View
 from liveLens.camera import Camera
-from liveLens.loggingSetup import getLogger
+from loggingSetup import getLogger
 from webView.webView import UiGen
 
 
@@ -24,6 +24,7 @@ class LiveLens:
         self.cam = Camera(0, [1280, 720])
 
     def fuse(self):
+        self.view.setCameraPosAtt(self.position, -self.imu.roll.value, self.imu.pitch.value, self.imu.yaw.value)
         lastImage = self.cam.latest_frame
         ll.view.canvas = lastImage
         ll.view.drawWorld(clearCanvas = False)

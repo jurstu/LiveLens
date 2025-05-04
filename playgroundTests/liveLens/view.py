@@ -5,7 +5,7 @@ import colorsys
 
 from liveLens.pinholeCamera import PinholeCamera, getExampleK
 from liveLens.worldStore import WorldStore
-from liveLens.loggingSetup import getLogger
+from loggingSetup import getLogger
 from liveLens.threeDeePoint import ThreeDeePoint, HorizonFlatText
 from liveLens.sprite import Sprite
 from liveLens.line import Line
@@ -81,7 +81,19 @@ class View:
     def drawLine(self, line:Line, dist:np.ndarray):
         #logger.debug(dist)
         c = line.color
-        cv2.line(self.canvas, dist[0], dist[1], [c[0], c[1], c[2]], 2)
+        distOrig = dist.copy()
+        for p in dist:
+            if np.isnan(p[0]) or np.isnan(p[1]):
+                logger.critical("number is NaN")
+            
+        dist = [[int(x[0]), int(x[1])] for x in dist]
+
+        c = [int(x) for x in c]
+        try:
+            cv2.line(self.canvas, dist[0], dist[1], [c[0], c[1], c[2]], 2)
+        except:
+            logger.critical(f"dist was {dist}, original values {distOrig}")
+
 
     def drawSprite(self, sprite:Sprite, dst:np.ndarray):
         if(sprite.visible == False):

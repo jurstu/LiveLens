@@ -6,7 +6,8 @@ from MSP.value import TimedValue
 
 class MSP:
     MSP_ATTITUDE = 108
-    
+    MSP_GPS = 106
+
     def __init__(self, port, baudrate=115200, timeout=1):
         self.port = port
         self.baudrate = baudrate
@@ -16,13 +17,23 @@ class MSP:
         self.roll = TimedValue(0)
         self.pitch = TimedValue(0)
         self.yaw = TimedValue(0)
+
+        self.lat = TimedValue(0)
+        self.lon = TimedValue(0)
+        self.gndSpd = TimedValue(0)
+        self.alt = TimedValue(0)
+        self.sats = TimedValue(0)
+        self.fix = TimedValue(0)
+        self.gndCrs = TimedValue(0)
+
+
         self.ser = SerialGuard(self.dataCallback, self.port, self.baudrate, True)
         self.t = threading.Thread(target=self.run, daemon=True)
         self.t.start()
 
     def run(self):
         while(1):
-            time.sleep(0.1)
+            time.sleep(0.2)
             self.request_attitude()
 
     def tryReadingPacket(self, ss):
@@ -77,19 +88,36 @@ class MSP:
                     id = p[4]
                     if(id == self.MSP_ATTITUDE):
                         self.handleMspAttitude(p)
-                    
-            #print(i, "th packet is", p)
+                    elif(id == self.MSP_GPS):
+                        self.handleMspGps(p)
+                    else:
+                        print("id is", id)
+
             delPref += len(p)
         
         self.undigested = self.undigested[delPref:]
-        
+
+
+    def handleMspGps(self, packet):
+        data = packet[5:5+16]
+        #lat, lon, gndSpd, alt, sats, fix = struct.unpack('<iihhBB', data)
+        fix, sats, lat, lon, alt, gndSpd, gndCrs = struct.unpack("<BBiihhh", data)
+
+        self.lat.value = lat / 1e7
+        self.lon.value = lon / 1e7
+        self.gndSpd.value = gndSpd / 100 # from cm/s to m/s
+        self.alt.value = alt
+        self.sats.value = sats
+        self.fix.value = fix
+        self.gndCrs.value = gndCrs/10
+
 
     def handleMspAttitude(self, packet):
         data = packet[5:5+6]
         self.roll.value, self.pitch.value, self.yaw.value = struct.unpack('<hhh', data[:6])
         self.roll.value /= 10.0 
         self.pitch.value /= 10.0
-        self.yaw.value /= 10.0
+        self.yaw.value /= 1.0
 
 
     def _create_msp_packet(self, cmd, payload=b''):
@@ -106,6 +134,16 @@ class MSP:
         pkt = self._create_msp_packet(cmd, payload)
         self.ser.sendData(pkt, True)
 
+    def request_gps(self):
+        self.lat._state = TimedValue.REQUESTED
+        self.lon._state = TimedValue.REQUESTED
+        self.gndSpd._state = TimedValue.REQUESTED
+        self.alt._state = TimedValue.REQUESTED
+        self.sats._state = TimedValue.REQUESTED
+        self.fix._state = TimedValue.REQUESTED
+
+        self._send_msp(self.MSP_GPS)
+
     def request_attitude(self):
         self.roll._state = TimedValue.REQUESTED
         self.pitch._state = TimedValue.REQUESTED
@@ -119,8 +157,11 @@ if __name__ == "__main__":
 
     # Get angles
     while(1):
-        #fc.request_attitude()
+        fc.request_attitude()
+        fc.request_gps()
+
         time.sleep(0.01)
+        print(fc.lat, fc.lon, fc.alt)
         print(fc.yaw, fc.pitch, fc.roll)
 
     fc.close()

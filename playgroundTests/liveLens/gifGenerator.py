@@ -3,7 +3,7 @@ import numpy as np
 from liveLens.pinholeCamera import PinholeCamera, getExampleK
 from liveLens.worldStore import WorldStore
 from liveLens.view import View
-from liveLens.loggingSetup import getLogger
+from loggingSetup import getLogger
 
 import imageio
 
