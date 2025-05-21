@@ -10,6 +10,9 @@ class PositionMonitor:
         self.lon = 0
         self.alt = 0
         self.isPosValid = 0
+        self.wgsPositions = [[52.22604175647743, 20.929888710983388, 0],
+                            [52.22604175647743, 20.929888710983388, 1]
+                            ]
 
 
     # in the future this abstraction layer could be used to apply Kalmann filtering
@@ -29,6 +32,13 @@ class PositionMonitor:
         ]) 
         self.ref_ecef = self.wgs84ToEcef(lat, lon, alt)
 
+
+    def getPositionsInENU(self):
+        output = []
+        for pos in self.wgsPositions:
+            enu = self.wgs84ToEnuFromCamera(pos[0] + 1, pos[1] + 2, pos[2])
+            output.append(enu)
+        return output
 
     def wgs84ToEcef(self, lat:float, lon:float, alt:float):
         a = 6378137.0  # semi-major axis (meters)

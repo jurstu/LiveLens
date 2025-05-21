@@ -191,9 +191,11 @@ class View:
         horizonFlatText = self.worldStore.horizonFlatText
 
         # the original one
-        cp = [self.cameraPos[1], -self.cameraPos[2], -self.cameraPos[0]]
+        #cp = [self.cameraPos[1], -self.cameraPos[2], -self.cameraPos[0]]
         # TODO this needs to get fixed
-        combinedList = sorted(points + sprites + lines + spheres + horizon + horizonFlatText, key=lambda obj: -obj.getDistNorm(cp))
+        
+        # + sprites + lines + spheres + horizon + horizonFlatText
+        combinedList = sorted(points, key=lambda obj: -obj.getDistNorm(self.cameraPos))
         
 
         rawPointsList = []
@@ -232,8 +234,12 @@ class View:
                     
                     self.drawSprite(object, dist)
                 case ThreeDeePoint():
+                    #logger.info("handling a point " + str(object))
+                    
                     dist = pp[counter]
+                    
                     if(z[counter] > 0):
+                        logger.info(f"twas projected to {dist}, z is {z[counter]}")
                         self.drawPoint(object, dist)
                     counter+=1
                     
@@ -245,7 +251,7 @@ class View:
 
                 case Line():
                     dist = pp[counter:counter+2]
-                    if(z[counter] > 0 and z[counter+1] > 0):
+                    if(z[counter] > 0 and z[counter+1] > 0.3):
                         self.drawLine(object, dist)
                     counter+=2
 
@@ -279,21 +285,28 @@ if __name__ == "__main__":
     ug = UiGen(1280, 720)
     ug.run()
     view = View()
-    view.worldStore.generateFloor(np.array([0, 0, 0]), 3, 0.05)
+    
+    view.worldStore.generateFloor(np.array([0, 0, 0]), 5, 0.05)
     R = 1
-    position = [-R, 0, 0.1]
+    position = [-R, 3, 0.0]
     view.setCameraPosAtt(position, 0, 0, 0)
 
     angle = 0
     tt = time.time()
     while True:
-        angle += 0.5
-        
+        angle += 5
+        view.worldStore.generateFloor(np.array([0, 0, 0]), 4, 0.18)
         #logger.info("{:02.2f}, {:02.2f}".format(angle, angle/(time.time()-tt)))
-        R = 1 + 0.0 * np.sin(np.deg2rad(3*angle))
-        position = [0 - R * np.cos(np.deg2rad(angle)), R * np.sin(np.deg2rad(angle)), 0.3]
+        R = 1# + 0.0 * np.sin(np.deg2rad(3*angle))
+        #position = [0 - R * np.cos(np.deg2rad(angle)), R * np.sin(np.deg2rad(angle)), 0.3]
+        position = [-1, 0.2, 0.3 * np.sin(np.deg2rad(angle))]
         
-        view.setCameraPosAtt(position, 0, 0, 1*angle + 90)
+
+        # roll + is rotating camera left
+        # yaw + is rotating camera left
+        # pitch + is rotating camera down (nosedive)
+        view.setCameraPosAtt(position, 0, 0.02*angle, 0, ) 
+        view.generateHorizon()
         try:
             view.drawWorld()
             ug.lastImage = view.canvas
@@ -304,5 +317,3 @@ if __name__ == "__main__":
             logger.warning("couldn't draw the world: " + str(e))
         
         
-
-    cv2.destroyAllWindows()

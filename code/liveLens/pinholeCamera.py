@@ -27,16 +27,17 @@ class PinholeCamera:
     def getProjections(self, points3D: np.ndarray, roll: float, pitch: float, yaw:float, cameraPos: np.ndarray):
         # later in projection it goes like this
         # X-axis: Points to the right in the image plane.
-        # Y-axis: Points downward in the image plane.
-        # Z-axis: Points forward (into the scene, away from the camera).
+        # Y-axis: Points up in the image plane.
+        # Z-axis: Points forward (into the camera).
         XX =  points3D[:, 0]
-        YY = -points3D[:, 2]
-        ZZ =  points3D[:, 1]        
-        ## so converting from Z points up, X points right, Y points up is basically this
+        YY =  points3D[:, 1]
+        ZZ =  points3D[:, 2]        
         
-        x = cameraPos[1]
-        y = -cameraPos[2]
-        z = -cameraPos[0]
+
+        # WTF is this
+        x = cameraPos[2]
+        y = -cameraPos[1]
+        z = cameraPos[0]
         cameraPos = [x, y, z]
 
 
@@ -45,22 +46,35 @@ class PinholeCamera:
         T = T.reshape((3, 1))
         
 
-        # Y
-        theta = np.radians(-90-yaw)
-        Ry = np.array([[np.cos(theta), 0, np.sin(theta)],
-                    [0, 1, 0],
-                    [-np.sin(theta), 0, np.cos(theta)]
+        # X right
+        # Y away
+        # Z up
+        #so converting from Z points up, X points right, Y points up
+
+        # Yaw is around Y axis, It changes X and Z
+        theta = np.radians(yaw)
+        #Ry = np.array ([[np.cos(theta), -np.sin(theta), 0],
+        #                [np.sin(theta), np.cos(theta), 0],
+        #                [0, 0, 1]])
+        Ry = np.array ([[ np.cos(theta), 0, np.sin(theta)],
+                        [ 0,             1,             0],
+                    [    -np.sin(theta), 0, np.cos(theta)]
                     ]
                     )
+
+
+
+
+        # Roll is around X so it changes Y and Z
+        theta = np.radians(roll)
+        Rr = np.array([
+            [np.cos(theta), -np.sin(theta), 0],
+            [np.sin(theta),  np.cos(theta), 0],
+            [0,                          0, 1]
+        ])
         
 
-        # Z 
-        theta = np.radians(roll)
-        Rr = np.array ([[np.cos(theta), -np.sin(theta), 0],
-                        [np.sin(theta), np.cos(theta), 0],
-                        [0, 0, 1]])
-
-        # X
+        # pitch changes around Z so it changes X and Y
         theta = np.radians(pitch)
         Rp = np.array([
             [1, 0,          0         ],
@@ -68,7 +82,8 @@ class PinholeCamera:
             [0, np.sin(theta),  np.cos(theta)]
         ])
 
-        R = Rr @ Rp @ Ry
+        #R = Rr @ Rp @ Ry
+        R = Rp @ Rr @ Ry
 
         # not sure if this should be here
         T = -np.dot(R, T)
@@ -90,7 +105,9 @@ class PinholeCamera:
         #points2DHom = points2DHom[:, validMask]
 
         # Normalize homogeneous coordinates to get (x, y) image coordinates
-        points2D = (points2DHom[:2] / points2DHom[2]).T.astype(float)
+
+        
+        points2D = np.divide(points2DHom[:2], points2DHom[2], out=np.zeros_like(points2DHom[:2]), where=abs(points2DHom[2])>0.00001).T.astype(float)
         
         
         return points2D, zCam

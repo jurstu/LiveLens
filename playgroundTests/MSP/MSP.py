@@ -35,6 +35,7 @@ class MSP:
         while(1):
             time.sleep(0.2)
             self.request_attitude()
+            self.request_gps()
 
     def tryReadingPacket(self, ss):
         #print("packet starts with", ss)

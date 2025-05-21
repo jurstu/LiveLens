@@ -6,7 +6,7 @@ from liveLens.view import View
 from liveLens.camera import Camera
 from loggingSetup import getLogger
 from webView.webView import UiGen
-
+from convertions import PositionMonitor
 
 
 logger = getLogger(__name__)
@@ -14,11 +14,11 @@ logger = getLogger(__name__)
 class LiveLens:
     def __init__(self):
         self.view = View()
-        self.view.worldStore.generateFloor(np.array([0, 0, 0]), 3, 0.05)
-        R = 1
-        eps = 0.01
-        self.position = [eps, eps, eps]
+        self.positionMonitor = PositionMonitor()
+        self.position = [1, 3, 0]
         
+
+
         self.view.setCameraPosAtt(self.position, 0, 0, 0)
         self.view.drawWorld()
         self.imu = MSP("/dev/ttyACM1")
@@ -27,7 +27,12 @@ class LiveLens:
 
 
     def fuse(self):
+        #self.positionMonitor.setCameraPosition(ll.imu.lat.value, ll.imu.lon.value, ll.imu.alt.value)
+        self.positionMonitor.setCameraPosition(52.226017797001944, 20.929922225434595, 0)
+        
+        
         self.view.setCameraPosAtt(self.position, -self.imu.roll.value, self.imu.pitch.value, self.imu.yaw.value)
+        
         lastImage = self.cam.latest_frame
         ll.view.canvas = lastImage
         ll.view.drawWorld(clearCanvas = False)
