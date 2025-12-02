@@ -195,7 +195,7 @@ class View:
         # TODO this needs to get fixed
         
         # + sprites + lines + spheres + horizon + horizonFlatText
-        combinedList = sorted(points, key=lambda obj: -obj.getDistNorm(self.cameraPos))
+        combinedList = sorted(points + sprites + lines + spheres + horizon + horizonFlatText, key=lambda obj: -obj.getDistNorm(self.cameraPos))
         
 
         rawPointsList = []
@@ -239,7 +239,7 @@ class View:
                     dist = pp[counter]
                     
                     if(z[counter] > 0):
-                        logger.info(f"twas projected to {dist}, z is {z[counter]}")
+                        #logger.info(f"twas projected to {dist}, z is {z[counter]}")
                         self.drawPoint(object, dist)
                     counter+=1
                     
@@ -293,19 +293,21 @@ if __name__ == "__main__":
 
     angle = 0
     tt = time.time()
+    view.worldStore.generateFloor(np.array([0, 0, 0]), 4, 0.18)
+
     while True:
-        angle += 5
-        view.worldStore.generateFloor(np.array([0, 0, 0]), 4, 0.18)
+        angle += 1
         #logger.info("{:02.2f}, {:02.2f}".format(angle, angle/(time.time()-tt)))
-        R = 1# + 0.0 * np.sin(np.deg2rad(3*angle))
+        R = 2# + 0.0 * np.sin(np.deg2rad(3*angle))
         #position = [0 - R * np.cos(np.deg2rad(angle)), R * np.sin(np.deg2rad(angle)), 0.3]
-        position = [-1, 0.2, 0.3 * np.sin(np.deg2rad(angle))]
+        position = [0, 1, 0]
+        #position = [-2, 0.2, 0.3 * np.sin(np.deg2rad(angle))]
         
 
         # roll + is rotating camera left
         # yaw + is rotating camera left
         # pitch + is rotating camera down (nosedive)
-        view.setCameraPosAtt(position, 0, 0.02*angle, 0, ) 
+        view.setCameraPosAtt(position, 0, 0, angle) 
         view.generateHorizon()
         try:
             view.drawWorld()
