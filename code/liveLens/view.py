@@ -208,6 +208,7 @@ class View:
         for object in combinedList:
             match object:
                 case Sprite():
+                    # TODO this doesn't work right now
                     if(not object.isSpriteFacingCam(cp)):
                         continue
                     for i in range(4):
@@ -300,10 +301,13 @@ class View:
 
 if __name__ == "__main__":
     from webView.webView import UiGen
+    from .camera import Camera
+    from MSP import MSP
     ug = UiGen(1280, 720)
     ug.run()
+    c = Camera(2, [1280,720,30])
     view = View()
-    view.worldStore.generateFloor(np.array([0, 0, 0]), 4, 0.18)
+    view.worldStore.generateFloor(np.array([0, -1, 0]), 4, 0.18)
     view.OSD.addText(view.width//2, 40+12*0, 1, (0,0,0), "self.roll", "roll: {:0.2f}")
     view.OSD.addText(view.width//2, 40+12*1, 1, (0,0,0), "self.pitch", "pitch: {:0.2f}")
     view.OSD.addText(view.width//2, 40+12*2, 1, (0,0,0), "self.yaw", "yaw: {:0.2f}")
@@ -316,26 +320,45 @@ if __name__ == "__main__":
 
 
     R = 1
-    angle = 20
+    angle = 0
     tt = time.time()
-    for i in range(95):
-        angle+=0.1
+    view.generateHorizon()
+    fc = MSP(port="/dev/ttyACM0")
+    while(time.time () - fc.yaw.lastSetTime > 1):
+        time.sleep(1)
+        
+    zeroYaw = int(fc.yaw.value)
 
+    
+    def newImage(image):
+        pass    
+
+    
+    
     while True:
         angle += 0.1
         position = [0, 0.4, 0]
         #angle=30.000000000000142
+        fc.request_attitude()
         
+        
+
+        print(fc.lat, fc.lon, fc.alt)
+        print(fc.yaw, fc.pitch, fc.roll)
 
         # roll + is rotating camera left
         # yaw + is rotating camera left
         # pitch + is rotating camera down (nosedive)
-        print(f"angle={angle}")
-        view.setCameraPosAtt(position, 0, 0, yaw=angle)
-        view.generateHorizon()
+        #print(f"angle={angle}")
+
+        view.setCameraPosAtt(position, roll=-fc.roll.value, pitch=fc.pitch.value, yaw=fc.yaw.value - zeroYaw)
+        
         try:
-            view.drawWorld()
+            view.canvas = c.latest_frame
+            view.drawWorld(clearCanvas=False)
             ug.lastImage = view.canvas
+            fc.request_attitude()
+            fc.request_gps()
             time.sleep(0.033)
             #time.sleep(3)
         except KeyboardInterrupt:
