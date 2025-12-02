@@ -28,7 +28,7 @@ class LiveLens:
 
 
     def fuse(self):
-        self.view.setCameraPosAtt(self.position, 0, 0, 0)
+        self.view.setCameraPosAtt(self.position, 0, 0, angle)
         lastImage = self.cam.latest_frame
         ll.view.canvas = lastImage
         ll.view.drawWorld(clearCanvas = True)

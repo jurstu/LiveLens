@@ -52,7 +52,7 @@ class PinholeCamera:
         #so converting from Z points up, X points right, Y points up
 
         # Yaw is around Y axis, It changes X and Z
-        theta = np.radians(yaw)
+        theta = np.radians(-yaw - 90)
         #Ry = np.array ([[np.cos(theta), -np.sin(theta), 0],
         #                [np.sin(theta), np.cos(theta), 0],
         #                [0, 0, 1]])

@@ -101,15 +101,7 @@ class WorldStore:
                 point = ThreeDeePoint(*(pos + np.array([x*spacing, 0, z*spacing])))
 
                 self.pointList.append(point)
-        import time
-        if(int(time.time()) %10 > 5):
-            for x in range(0, squareSize):
-                    for z in range(0, squareSize):
-
-                        point = ThreeDeePoint(*(pos + np.array([-x*spacing, 0, -z*spacing])))
-
-                        self.pointList.append(point)
-
+        
 
 if __name__ == "__main__":
     ws = WorldStore()

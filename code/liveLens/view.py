@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import time
 import colorsys
+import re
 
 from liveLens.pinholeCamera import PinholeCamera, getExampleK
 from liveLens.worldStore import WorldStore
@@ -10,7 +11,7 @@ from liveLens.threeDeePoint import ThreeDeePoint, HorizonFlatText
 from liveLens.sprite import Sprite
 from liveLens.line import Line
 from liveLens.sphere import Sphere
-
+from liveLens.OSD import OSD
 
 
 logger = getLogger(__name__)
@@ -28,6 +29,8 @@ class View:
         self.canvas = np.zeros((height, width, 3), dtype=np.uint8)
         self.canvas[:] = np.array(self.bgColor, dtype=np.uint8)
 
+        self.OSD = OSD()
+
         self.pinholeCamera = PinholeCamera(getExampleK())
         self.worldStore = WorldStore()
         self.worldStore.load()
@@ -35,6 +38,7 @@ class View:
         self.roll = 0
         self.pitch = 0
         self.yaw = 0
+        self._osd_path_cache = {}
 
 
     def setCameraPosAtt(self, cameraPos, roll, pitch, yaw):
@@ -122,7 +126,9 @@ class View:
         self.worldStore.horizonList = []
         self.worldStore.horizonFlatText = []
 
+        
         center = self.cameraPos
+        print(f"center={center}")
         R = 5
         segments = 24
 
@@ -130,17 +136,17 @@ class View:
             a0 = i     * 360/segments
             a1 = (i+1) * 360/segments
 
-            a0r = np.deg2rad(a0)
-            a1r = np.deg2rad(a1)
+            a0r = np.deg2rad(a0) * 1 # R=1
+            a1r = np.deg2rad(a1) * 1 # R=1
 
             c = center
-            p0 = [c[0] + R*np.cos(a0r), c[1] + R*np.sin(a0r), c[2]]
-            p1 = [c[0] + R*np.cos(a1r), c[1] + R*np.sin(a1r), c[2]]
+            p0 = [c[0] + R*np.cos(a0r), c[1], c[2] + R*np.sin(a0r)]
+            p1 = [c[0] + R*np.cos(a1r), c[1], c[2] + R*np.sin(a1r)]
 
             self.worldStore.horizonList.append(Line(
                 ThreeDeePoint(p0[0], p0[1], p0[2]),
                 ThreeDeePoint(p1[0], p1[1], p1[2]),
-                    [0, 255, 0] #hsv2rgb(i/segments, 1, 1)
+                    hsv2rgb(i/segments, 1, 1)
                 ))
 
             if(a0 % 30 == 0):
@@ -264,17 +270,28 @@ class View:
 
                 case _:
                     logger.error("object type not handled by renderer")
-                    
-        lines = []
-        lines.append("roll: {:0.2f}".format(self.roll))
-        lines.append("pitch: {:0.2f}".format(self.pitch))
-        lines.append("yaw: {:0.2f}".format(self.yaw))
-        lines.append("x: {:0.2f}".format(self.cameraPos[0]))
-        lines.append("y: {:0.2f}".format(self.cameraPos[1]))
-        lines.append("z: {:0.2f}".format(self.cameraPos[2]))
-        
-        for i, line in enumerate(lines):
-            cv2.putText(self.canvas, line, (self.width//2, 40 + i*12), cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 0), 1)
+        self.drawOverlay()
+
+
+
+    def drawOverlay(self):
+
+        objects = self.OSD.objects
+        for object in objects:
+            if object["type"] == "rect":
+                p1 = [object["x"], object["y"]]
+                p2 = [object["x"] + object["w"], object["y"] + object["h"]]
+                cv2.rectangle(self.canvas, p1, p2, object["color"], 2)
+
+            if object["type"] == "text":
+                try:
+                    read_value = (eval(object["readValue"]))
+                    line = object["format"].format(read_value)
+                except Exception as exc:
+                    logger.warning(f"failed to render OSD text '{object.get('format')}': {exc}")
+                    continue
+                cv2.putText(self.canvas, line, (object["x"], object["y"]), cv2.FONT_HERSHEY_PLAIN, object["size"], object["color"], 1)
+
 
 
 
@@ -285,34 +302,41 @@ if __name__ == "__main__":
     ug = UiGen(1280, 720)
     ug.run()
     view = View()
-    
-    view.worldStore.generateFloor(np.array([0, 0, 0]), 5, 0.05)
-    R = 1
-    position = [-R, 3, 0.0]
-    view.setCameraPosAtt(position, 0, 0, 0)
-
-    angle = 0
-    tt = time.time()
     view.worldStore.generateFloor(np.array([0, 0, 0]), 4, 0.18)
+    view.OSD.addText(view.width//2, 40+12*0, 1, (0,0,0), "self.roll", "roll: {:0.2f}")
+    view.OSD.addText(view.width//2, 40+12*1, 1, (0,0,0), "self.pitch", "pitch: {:0.2f}")
+    view.OSD.addText(view.width//2, 40+12*2, 1, (0,0,0), "self.yaw", "yaw: {:0.2f}")
+    view.OSD.addText(view.width//2, 40+12*3, 1, (0,0,0), "self.cameraPos[0]", "x {:0.2f}")
+    view.OSD.addText(view.width//2, 40+12*4, 1, (0,0,0), "self.cameraPos[1]", "y {:0.2f}")
+    view.OSD.addText(view.width//2, 40+12*5, 1, (0,0,0), "self.cameraPos[2]", "z {:0.2f}")
+
+    view.OSD.addRect(view.width//2-10, 40-12*2, 140, 12*8, (0,0,0))
+
+
+
+    R = 1
+    angle = 20
+    tt = time.time()
+    for i in range(95):
+        angle+=0.1
 
     while True:
-        angle += 1
-        #logger.info("{:02.2f}, {:02.2f}".format(angle, angle/(time.time()-tt)))
-        R = 2# + 0.0 * np.sin(np.deg2rad(3*angle))
-        #position = [0 - R * np.cos(np.deg2rad(angle)), R * np.sin(np.deg2rad(angle)), 0.3]
-        position = [0, 1, 0]
-        #position = [-2, 0.2, 0.3 * np.sin(np.deg2rad(angle))]
+        angle += 2
+        position = [0, 0.4, 0]
+        angle=30.000000000000142
         
 
         # roll + is rotating camera left
         # yaw + is rotating camera left
         # pitch + is rotating camera down (nosedive)
-        view.setCameraPosAtt(position, 0, 0, angle) 
+        print(f"angle={angle}")
+        view.setCameraPosAtt(position, 0, 0, yaw=angle)
         view.generateHorizon()
         try:
             view.drawWorld()
             ug.lastImage = view.canvas
             time.sleep(0.033)
+            #time.sleep(3)
         except KeyboardInterrupt:
             break
         except Exception as e:
