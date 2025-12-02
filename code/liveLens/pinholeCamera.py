@@ -34,16 +34,12 @@ class PinholeCamera:
         ZZ =  points3D[:, 2]        
         
 
-        # WTF is this
-        x = cameraPos[2]
-        y = -cameraPos[1]
-        z = cameraPos[0]
-        cameraPos = [x, y, z]
-
+        # keep camera position in the same coordinate system as the world
+        # (X right, Y up, Z forward)
+        cameraPos = np.array(cameraPos, dtype=float)
 
         points3D = np.vstack([XX, YY, ZZ]).T
-        T = np.array(cameraPos)
-        T = T.reshape((3, 1))
+        T = cameraPos.reshape((3, 1))
         
 
         # X right

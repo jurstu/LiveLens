@@ -154,8 +154,8 @@ class View:
                     HorizonFlatText(p0[0], p0[1], p0[2] + 0.05, [0, 255, 0], str(int(360 - a0)), "", yOffset=-20)
                 )
                 self.worldStore.horizonList.append(Line(
-                ThreeDeePoint(p0[0], p0[1], p0[2]-0.1),
-                ThreeDeePoint(p0[0], p0[1], p0[2]+0.1),
+                ThreeDeePoint(p0[0], p0[1]-0.1, p0[2]),
+                ThreeDeePoint(p0[0], p0[1]+0.1, p0[2]),
                     [0, 0, 0] #hsv2rgb(i/segments, 1, 1)
                 ))
 
@@ -257,7 +257,8 @@ class View:
 
                 case Line():
                     dist = pp[counter:counter+2]
-                    if(z[counter] > 0 and z[counter+1] > 0.3):
+                    # ignore lines that intersect or sit on the camera plane to avoid artifacts
+                    if(z[counter] > 1e-3 and z[counter+1] > 1e-3):
                         self.drawLine(object, dist)
                     counter+=2
 
@@ -321,9 +322,9 @@ if __name__ == "__main__":
         angle+=0.1
 
     while True:
-        angle += 2
+        angle += 0.1
         position = [0, 0.4, 0]
-        angle=30.000000000000142
+        #angle=30.000000000000142
         
 
         # roll + is rotating camera left
