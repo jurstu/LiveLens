@@ -164,7 +164,7 @@ class View:
                 self.worldStore.horizonFlatText.append(
                     HorizonFlatText(p0[0], p0[1], p0[2], [0, 255, 0], "N", "", yOffset=30)
                 )
-            if a0 == 90:
+            if a0 == 270:
                 self.worldStore.horizonFlatText.append(
                     HorizonFlatText(p0[0], p0[1], p0[2], [0, 255, 0], "E", "", yOffset=30)
                 )
@@ -172,7 +172,7 @@ class View:
                 self.worldStore.horizonFlatText.append(
                     HorizonFlatText(p0[0], p0[1], p0[2], [0, 255, 0], "S", "", yOffset=30)
                 )
-            if a0 == 270:
+            if a0 == 90:
                 self.worldStore.horizonFlatText.append(
                     HorizonFlatText(p0[0], p0[1], p0[2], [0, 255, 0], "W", "", yOffset=30)
                 )
@@ -186,7 +186,7 @@ class View:
         if clearCanvas:
             self.canvas = np.zeros((self.height, self.width, 3), dtype=np.uint8)
             self.canvas[:] = 255
-
+        
         self.generateHorizon()
 
         points = self.worldStore.pointList
@@ -324,8 +324,13 @@ if __name__ == "__main__":
     tt = time.time()
     view.generateHorizon()
     fc = MSP(port="/dev/ttyACM0")
+    i = 0
     while(time.time () - fc.yaw.lastSetTime > 1):
         time.sleep(1)
+        i += 1  
+        if (i > 5):
+            logger.warning("no MSP available")
+            break
         
     zeroYaw = int(fc.yaw.value)
 
@@ -340,22 +345,25 @@ if __name__ == "__main__":
         position = [0, 0.4, 0]
         #angle=30.000000000000142
         fc.request_attitude()
-        
+
         
 
-        print(fc.lat, fc.lon, fc.alt)
-        print(fc.yaw, fc.pitch, fc.roll)
+        #print(fc.lat, fc.lon, fc.alt)
+        #print(fc.yaw, fc.pitch, fc.roll)
 
         # roll + is rotating camera left
         # yaw + is rotating camera left
         # pitch + is rotating camera down (nosedive)
         #print(f"angle={angle}")
 
-        view.setCameraPosAtt(position, roll=-fc.roll.value, pitch=fc.pitch.value, yaw=fc.yaw.value - zeroYaw)
+        x = ug.off_x
+        y = ug.off_y
+
+        view.setCameraPosAtt(position, roll=-fc.roll.value, pitch=fc.pitch.value + y, yaw=fc.yaw.value - zeroYaw + x)
         
         try:
             view.canvas = c.latest_frame
-            view.drawWorld(clearCanvas=False)
+            view.drawWorld(clearCanvas=True)
             ug.lastImage = view.canvas
             fc.request_attitude()
             fc.request_gps()

@@ -1,4 +1,5 @@
 from nicegui import ui, events, app
+from nicegui.events import KeyEventArguments
 from fastapi import Response
 import os
 import time
@@ -12,7 +13,11 @@ class UiGen:
         self.videoWW = ww
         self.videoHH = hh
         self.lastImage = np.empty((self.videoHH, self.videoWW, 3))
+        self.lastImage[:] = 128
         self.controls = {}
+        self.off_x = 0
+        self.off_y = 0
+
         self.spawnGui()
 
     def run(self):
@@ -58,12 +63,34 @@ class UiGen:
                             ui.button('Light', on_click=dark.disable)
 
 
+
+
+
+
+        keyboard = ui.keyboard(on_key=self.handle_key, active=True)
+
+
         @app.get('/video/frame', response_class=Response)
         def grabVideoFrame() -> Response:
             _, raw = cv2.imencode(".jpg", self.lastImage)      
             return Response(content=raw.tobytes(), media_type="image/jpg") 
 
         ui.timer(interval=0.033, callback=lambda: self.controls["tracking_image"].set_source(f'/video/frame?{time.time()}'))   
+
+    def handle_key(self, e: KeyEventArguments):
+        if e.action.keydown:
+            if e.key.arrow_left:
+                ui.notify('going left')
+                self.off_x -= 5
+            elif e.key.arrow_right:
+                ui.notify('going right')
+                self.off_x += 5
+            elif e.key.arrow_up:
+                ui.notify('going up')
+                self.off_y -= 5
+            elif e.key.arrow_down:
+                ui.notify('going down')
+                self.off_y +=5
 
     def setDebugData(self, data):
         try:

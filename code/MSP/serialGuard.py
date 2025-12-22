@@ -4,6 +4,8 @@ import serial
 
 tag = "serial"
 
+
+
 class SerialGuard:
     def __init__(self, dataReceiveCallback, portName='/dev/ttyUSB0', portBaud=115200, raw=False):
         self.raw = raw
@@ -37,7 +39,7 @@ class SerialGuard:
                 try:
                     data=self.serial.read(self.serial.in_waiting)
                 except Exception as e:
-                    print(tag, "error while reading data from serial" + str(e))
+                    #print(tag, "error while reading data from serial" + str(e))
                     if(self.serial.is_open):
                         self.serial.close()
                         break
@@ -47,8 +49,9 @@ class SerialGuard:
                         self.receiveCallback(strdata)
                         time.sleep(0.01)
                     except Exception as e:
-                        print(tag, "probably utf- conversion error: " + str(e))    
-                        print(tag, "data was: " + str(data))    
+                        pass
+                        #print(tag, "probably utf- conversion error: " + str(e))    
+                        #print(tag, "data was: " + str(data))    
                 else:
                     self.receiveCallback(data)
                 time.sleep(0.1)
@@ -64,9 +67,11 @@ class SerialGuard:
                 else:
                     self.serial.write(data)
             else:
-                print(tag, "uart isn't open, not sending this data: " + str(data))
+                pass
+                #print(tag, "uart isn't open, not sending this data: " + str(data))
         else:
-            print(tag, "uart isn't open, not sending this data: " + str(data))
+            pass
+            #print(tag, "uart isn't open, not sending this data: " + str(data))
 
 
 
