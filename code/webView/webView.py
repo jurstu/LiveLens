@@ -80,16 +80,12 @@ class UiGen:
     def handle_key(self, e: KeyEventArguments):
         if e.action.keydown:
             if e.key.arrow_left:
-                ui.notify('going left')
                 self.off_x -= 5
             elif e.key.arrow_right:
-                ui.notify('going right')
                 self.off_x += 5
             elif e.key.arrow_up:
-                ui.notify('going up')
                 self.off_y -= 5
             elif e.key.arrow_down:
-                ui.notify('going down')
                 self.off_y +=5
 
     def setDebugData(self, data):

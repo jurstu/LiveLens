@@ -12,7 +12,7 @@ from liveLens.sprite import Sprite
 from liveLens.line import Line
 from liveLens.sphere import Sphere
 from liveLens.OSD import OSD
-
+from liveLens.wgs84World import Wgs84World
 
 logger = getLogger(__name__)
 
@@ -33,6 +33,7 @@ class View:
 
         self.pinholeCamera = PinholeCamera(getExampleK())
         self.worldStore = WorldStore()
+        self.wgs84World = Wgs84World()
         self.worldStore.load()
         self.cameraPos = [0, 0, 0]
         self.roll = 0
@@ -166,7 +167,7 @@ class View:
                 )
             if a0 == 270:
                 self.worldStore.horizonFlatText.append(
-                    HorizonFlatText(p0[0], p0[1], p0[2], [0, 255, 0], "E", "", yOffset=30)
+                    HorizonFlatText(p0[0], p0[1], p0[2], [0, 128, 0], "E", "", yOffset=30)
                 )
             if a0 == 180:
                 self.worldStore.horizonFlatText.append(
@@ -189,6 +190,10 @@ class View:
         
         self.generateHorizon()
 
+        
+        wgsPoints = self.wgs84World.getPoints(52.201688, 21.037895, 60)
+
+
         points = self.worldStore.pointList
         sprites = self.worldStore.spriteList
         lines = self.worldStore.lineList
@@ -201,7 +206,7 @@ class View:
         # TODO this needs to get fixed
         
         # + sprites + lines + spheres + horizon + horizonFlatText
-        combinedList = sorted(points + sprites + lines + spheres + horizon + horizonFlatText, key=lambda obj: -obj.getDistNorm(self.cameraPos))
+        combinedList = sorted(wgsPoints + points + sprites + lines + spheres + horizon + horizonFlatText, key=lambda obj: -obj.getDistNorm(self.cameraPos))
         
 
         rawPointsList = []
@@ -272,7 +277,7 @@ class View:
 
                 case _:
                     logger.error("object type not handled by renderer")
-        self.drawOverlay()
+        #self.drawOverlay()
 
 
 
@@ -328,7 +333,7 @@ if __name__ == "__main__":
     while(time.time () - fc.yaw.lastSetTime > 1):
         time.sleep(1)
         i += 1  
-        if (i > 5):
+        if (i > 2):
             logger.warning("no MSP available")
             break
         
@@ -360,10 +365,10 @@ if __name__ == "__main__":
         y = ug.off_y
 
         view.setCameraPosAtt(position, roll=-fc.roll.value, pitch=fc.pitch.value + y, yaw=fc.yaw.value - zeroYaw + x)
-        
+        view.canvas = c.latest_frame
+        view.drawWorld(clearCanvas=True)
         try:
-            view.canvas = c.latest_frame
-            view.drawWorld(clearCanvas=True)
+            
             ug.lastImage = view.canvas
             fc.request_attitude()
             fc.request_gps()
