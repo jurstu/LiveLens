@@ -31,6 +31,12 @@ class Wgs84Point:
             [ cos_lat*cos_lon,  cos_lat*sin_lon, sin_lat]
         ])
         enu = R @ np.array([dx, dy, dz])
+        # ENU
+        # NUE
+        # 
+        # NED 
+        # NUW North, Up, West
+        
         tdp = ThreeDeePoint(enu[1], enu[2], -enu[0])
         return tdp
 
