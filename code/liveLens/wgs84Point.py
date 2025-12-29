@@ -37,7 +37,7 @@ class Wgs84Point:
         # NED 
         # NUW North, Up, West
         
-        tdp = ThreeDeePoint(enu[1], enu[2], -enu[0])
+        tdp = ThreeDeePoint(enu[1], -enu[2], -enu[0])
         return tdp
 
 
