@@ -136,7 +136,7 @@ class Camera:
         while not self._stop_event.is_set():
             frame = self._pull_sample()
             if frame is not None:
-                self.latest_frame = frame
+                self.latest_frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
                 if self.observers:
                     self.notify_observers()
             if sleep_time:

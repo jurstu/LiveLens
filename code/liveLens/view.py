@@ -65,7 +65,7 @@ class View:
 
     def drawPoint(self, point:ThreeDeePoint, dist:np.ndarray):
         #logger.debug(dist)
-        cv2.circle(self.canvas, dist, 5, (0, 0, 0))
+        cv2.circle(self.canvas, dist, 5, (255, 0, 255), -1)
 
     def drawHorizonFlatText(self, text:HorizonFlatText, dist:np.ndarray):
         #logger.debug(dist)
@@ -191,7 +191,7 @@ class View:
         self.generateHorizon()
 
         
-        wgsPoints = self.wgs84World.getPoints(52.201688, 21.037895, 60)
+        wgsPoints = self.wgs84World.getPoints(52.201635, 21.038175, 134)
 
 
         points = self.worldStore.pointList
@@ -310,7 +310,7 @@ if __name__ == "__main__":
     from MSP import MSP
     ug = UiGen(1280, 720)
     ug.run()
-    c = Camera(2, [1280,720,30])
+    c = Camera(0, [1280,720,30])
     view = View()
     view.worldStore.generateFloor(np.array([0, -1, 0]), 4, 0.18)
     view.OSD.addText(view.width//2, 40+12*0, 1, (0,0,0), "self.roll", "roll: {:0.2f}")
@@ -366,7 +366,7 @@ if __name__ == "__main__":
 
         view.setCameraPosAtt(position, roll=-fc.roll.value, pitch=fc.pitch.value + y, yaw=fc.yaw.value - zeroYaw + x)
         view.canvas = c.latest_frame
-        view.drawWorld(clearCanvas=True)
+        view.drawWorld(clearCanvas=False)
         try:
             
             ug.lastImage = view.canvas
