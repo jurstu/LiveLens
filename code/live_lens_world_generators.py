@@ -18,5 +18,5 @@ def generate_axis_world(world, start_x=0, start_y=0, start_z=0):
 
 def generate_marker_world(world, start_x=0, start_y=0, start_z=0):
     world.add_sphere(start_x, start_y, start_z, 1, name="marker")
-    world.add_glyph(start_x, start_y, start_z+2, "marker", name="marker_label")
+    world.add_glyph(start_x, start_y, start_z, "marker", name="marker_label")
     return world
